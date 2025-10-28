@@ -37,8 +37,10 @@ CREATE TABLE IF NOT EXISTS admin_users (
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 
 -- 認証済みユーザーが全ての管理者情報を閲覧できる（パスワードハッシュ以外）
+DROP POLICY IF EXISTS "Authenticated users can view admin users" ON admin_users;
 CREATE POLICY "Authenticated users can view admin users"
-  ON admin_users FOR SELECT
+  ON admin_users
+  FOR SELECT
   TO authenticated
   USING (true);
 
