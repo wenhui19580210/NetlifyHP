@@ -30,8 +30,8 @@ export const Login: React.FC = () => {
       navigate('/admin');
     } catch (err: any) {
       setError(
-        err.message === 'Invalid credentials'
-          ? t('ユーザー名またはパスワードが正しくありません', '用户名或密码不正确')
+        err.message === 'Invalid credentials' || err.message?.includes('Invalid login credentials')
+          ? t('メールアドレスまたはパスワードが正しくありません', '邮箱地址或密码不正确')
           : t('ログインに失敗しました', '登录失败')
       );
     } finally {
@@ -77,22 +77,22 @@ export const Login: React.FC = () => {
               </div>
             )}
 
-            {/* ユーザー名 */}
+            {/* メールアドレス */}
             <div>
-              <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('ユーザー名', '用户名')}
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('メールアドレス', '邮箱地址')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="username"
-                  type="text"
+                  id="email"
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="admin"
+                  placeholder="admin@example.com"
                   required
-                  autoComplete="username"
+                  autoComplete="email"
                 />
               </div>
             </div>

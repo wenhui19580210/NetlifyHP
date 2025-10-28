@@ -72,7 +72,7 @@ export const Admin: React.FC = () => {
 
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                {user.display_name} (@{user.username})
+                {user.display_name}
               </span>
               <button
                 onClick={() => navigate('/')}

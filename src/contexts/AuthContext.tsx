@@ -3,62 +3,88 @@ import { supabase } from '../lib/supabase';
 
 interface AdminUser {
   id: string;
-  username: string;
+  email: string;
   display_name: string;
 }
 
 interface AuthContextType {
   user: AdminUser | null;
   loading: boolean;
-  signIn: (username: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_STORAGE_KEY = 'admin_auth';
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // セッションの確認
   useEffect(() => {
-    const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (storedAuth) {
+    const checkSession = async () => {
       try {
-        const adminUser = JSON.parse(storedAuth);
-        setUser(adminUser);
-      } catch (e) {
-        localStorage.removeItem(AUTH_STORAGE_KEY);
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          const adminUser: AdminUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            display_name: session.user.user_metadata?.display_name || session.user.email || 'Admin'
+          };
+          setUser(adminUser);
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    checkSession();
+
+    // 認証状態の変更を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const adminUser: AdminUser = {
+          id: session.user.id,
+          email: session.user.email || '',
+          display_name: session.user.user_metadata?.display_name || session.user.email || 'Admin'
+        };
+        setUser(adminUser);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const signIn = async (username: string, password: string) => {
-    const { data, error } = await supabase.rpc('verify_admin_credentials', {
-      p_username: username,
-      p_password: password
+  const signIn = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
 
     if (error) throw error;
-    if (!data || data.length === 0) {
+    if (!data.user) {
       throw new Error('Invalid credentials');
     }
 
     const adminUser: AdminUser = {
-      id: data[0].user_id,
-      username: data[0].username,
-      display_name: data[0].display_name
+      id: data.user.id,
+      email: data.user.email || '',
+      display_name: data.user.user_metadata?.display_name || data.user.email || 'Admin'
     };
 
     setUser(adminUser);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(adminUser));
   };
 
   const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   return (
