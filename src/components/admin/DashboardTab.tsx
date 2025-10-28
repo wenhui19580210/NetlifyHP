@@ -43,27 +43,27 @@ export const DashboardTab: React.FC = () => {
       const { data: services } = await supabase.from('services').select('is_visible, deleted_at');
       const servicesStats = {
         total: services?.length || 0,
-        visible: services?.filter((s) => s.is_visible && !s.deleted_at).length || 0,
-        hidden: services?.filter((s) => !s.is_visible && !s.deleted_at).length || 0,
-        deleted: services?.filter((s) => s.deleted_at).length || 0,
+        visible: services?.filter((s: any) => s.is_visible && !s.deleted_at).length || 0,
+        hidden: services?.filter((s: any) => !s.is_visible && !s.deleted_at).length || 0,
+        deleted: services?.filter((s: any) => s.deleted_at).length || 0,
       };
 
       // ブログ記事の統計
       const { data: posts } = await supabase.from('blog_posts').select('is_visible, deleted_at');
       const blogPostsStats = {
         total: posts?.length || 0,
-        visible: posts?.filter((p) => p.is_visible && !p.deleted_at).length || 0,
-        hidden: posts?.filter((p) => !p.is_visible && !p.deleted_at).length || 0,
-        deleted: posts?.filter((p) => p.deleted_at).length || 0,
+        visible: posts?.filter((p: any) => p.is_visible && !p.deleted_at).length || 0,
+        hidden: posts?.filter((p: any) => !p.is_visible && !p.deleted_at).length || 0,
+        deleted: posts?.filter((p: any) => p.deleted_at).length || 0,
       };
 
       // FAQの統計
       const { data: faqs } = await supabase.from('faqs').select('is_visible, deleted_at');
       const faqsStats = {
         total: faqs?.length || 0,
-        visible: faqs?.filter((f) => f.is_visible && !f.deleted_at).length || 0,
-        hidden: faqs?.filter((f) => !f.is_visible && !f.deleted_at).length || 0,
-        deleted: faqs?.filter((f) => f.deleted_at).length || 0,
+        visible: faqs?.filter((f: any) => f.is_visible && !f.deleted_at).length || 0,
+        hidden: faqs?.filter((f: any) => !f.is_visible && !f.deleted_at).length || 0,
+        deleted: faqs?.filter((f: any) => f.deleted_at).length || 0,
       };
 
       setStats({

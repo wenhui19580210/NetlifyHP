@@ -6,7 +6,7 @@ import { useBlogPosts } from '../hooks/useBlogPosts';
 
 export const Results: React.FC = () => {
   const { language, t } = useLanguage();
-  const { data: posts, loading } = useBlogPosts(3);
+  const { data: posts, loading } = useBlogPosts(); // 制限なしで全て取得
 
   if (loading) {
     return (
