@@ -1,6 +1,6 @@
 {
   "name": "tokatsu-solar-cms",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "東勝会社 - 太陽光発電パネル点検・清掃・保守のCMSウェブサイト",
   "type": "module",
   "scripts": {

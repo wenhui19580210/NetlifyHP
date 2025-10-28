@@ -70,7 +70,7 @@ export const Admin: React.FC = () => {
 
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                {user.email}
+                {user.display_name} (@{user.username})
               </span>
               <button
                 onClick={() => navigate('/')}

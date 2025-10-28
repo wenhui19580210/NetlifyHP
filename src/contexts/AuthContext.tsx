@@ -1,52 +1,68 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { User, Session } from '@supabase/supabase-js';
+
+interface AdminUser {
+  id: string;
+  username: string;
+  display_name: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AdminUser | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const AUTH_STORAGE_KEY = 'admin_auth';
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 初期セッション取得
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // 認証状態変更の監視
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (storedAuth) {
+      try {
+        const adminUser = JSON.parse(storedAuth);
+        setUser(adminUser);
+      } catch (e) {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+    }
+    setLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const signIn = async (username: string, password: string) => {
+    const { data, error } = await supabase.rpc('verify_admin_credentials', {
+      p_username: username,
+      p_password: password
+    });
+
     if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('Invalid credentials');
+    }
+
+    const adminUser: AdminUser = {
+      id: data[0].user_id,
+      username: data[0].username,
+      display_name: data[0].display_name
+    };
+
+    setUser(adminUser);
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(adminUser));
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    setUser(null);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

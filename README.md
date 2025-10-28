@@ -2,7 +2,7 @@
 
 太陽光発電パネルの点検・清掃・保守を専門とする東勝会社のコーポレートサイトです。**React + TypeScript + Supabase**で構築された本格的なCMSシステムを搭載しています。
 
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Version](https://img.shields.io/badge/version-1.4.0-blue)
 ![React](https://img.shields.io/badge/React-18.2-61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178c6)
 ![Supabase](https://img.shields.io/badge/Supabase-2.39-3ecf8e)
@@ -22,9 +22,10 @@
 
 #### ログイン情報
 - **URL**: `/login` → `/admin`
-- **デフォルトアカウント**: 
-  - Email: `admin@tokatsu-solar.local`
+- **デフォルト管理者アカウント**:
+  - User: `admin`
   - Password: `admin`
+  - ⚠️ **重要**: 本番環境では必ずパスワードを変更してください！
 
 #### 主要機能
 - **WordPress風UI**: 直感的で使いやすいインターフェース
@@ -87,18 +88,21 @@ npm run dev
 
 ブラウザで `http://localhost:5173` にアクセス。
 
-### 5. 管理者アカウントの作成
+### 5. 管理者アカウントでログイン
 
 **デフォルト管理者アカウント:**
-- **Email**: `admin@tokatsu-solar.local`
+- **User**: `admin`
 - **Password**: `admin`
 - ⚠️ **重要**: 本番環境では必ずパスワードを変更してください！
 
-**アカウント作成手順:**
-1. Supabaseダッシュボード → Authentication → Users
-2. `supabase/init_admin.sql`を実行（推奨）、または手動で作成
-3. `/login` にアクセスしてログイン
-4. `/admin` で管理画面を開く
+**ログイン手順:**
+1. ブラウザで `/login` にアクセス
+2. User に `admin` を入力
+3. Password に `admin` を入力
+4. ログインボタンをクリック
+5. `/admin` で管理画面が開きます
+
+**注意**: 管理者アカウントは `supabase/migrations/001_initial_schema.sql` で自動作成されます。
 
 ## 📂 プロジェクト構造
 
@@ -254,9 +258,10 @@ tokatsu-solar-cms/
 
 ### 認証システム
 
-- Supabase Authenticationによる安全なログイン
-- JWTトークンベースの認証
-- セッション管理
+- カスタム管理者認証システム(username/password方式)
+- bcryptによるパスワードハッシュ化
+- ローカルストレージでのセッション管理
+- パスワード変更機能(`change_admin_password`関数)
 
 ## 📊 パフォーマンス
 
@@ -321,11 +326,18 @@ npm run typecheck
 
 ## 🔄 更新履歴
 
-### v1.2.0 (2025-10-27) - 現在のバージョン
+### v1.4.0 (2025-10-28) - 現在のバージョン
+
+- 🔐 カスタム管理者認証システムの実装(username/password方式)
+- 🗄️ admin_usersテーブルの追加
+- 🔑 bcryptによるパスワードハッシュ化
+- 🛡️ パスワード変更機能の実装
+- 📝 ユーザー名ベースのログインシステム
+
+### v1.3.0 (2025-10-27)
 
 - ✨ React + TypeScript + Supabaseによる完全リビルド
 - 🎨 WordPress風管理画面の実装
-- 🔐 Supabase Authenticationによる認証システム
 - 🗄️ Row Level Securityの実装
 - 🌐 多言語対応システムの強化
 - 📱 レスポンシブデザインの最適化
@@ -346,4 +358,4 @@ npm run typecheck
 管理画面の使い方については、**SETUP_GUIDE.md**の「管理者アカウントの作成」セクションを参照してください。
 
 
-**最終更新日**: 2025年10月27日
+**最終更新日**: 2025年10月28日

@@ -1,13 +1,15 @@
 -- ================================================
 -- 東勝会社 CMSウェブサイト - データベーススキーマ
 -- ================================================
--- Version: 1.2.0
+-- Version: 1.3.0
 -- Created: 2025-10-27
+-- Updated: 2025-10-28
 -- Description: 太陽光発電パネルメンテナンス会社のCMSシステム
 -- ================================================
 
 -- UUIDエクステンションの有効化
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ================================================
 -- 1. 会社情報テーブル (company_info)
@@ -200,6 +202,29 @@ CREATE TRIGGER update_faqs_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- ================================================
+-- 6. 管理者ユーザーテーブル (admin_users)
+-- ================================================
+-- CMS管理者アカウントを管理
+
+CREATE TABLE IF NOT EXISTS admin_users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  username text UNIQUE NOT NULL,
+  password_hash text NOT NULL,
+  display_name text NOT NULL,
+  is_active boolean DEFAULT true NOT NULL,
+  last_login_at timestamptz,
+  created_at timestamptz DEFAULT now() NOT NULL,
+  updated_at timestamptz DEFAULT now() NOT NULL
+);
+
+COMMENT ON TABLE admin_users IS '管理者ユーザーアカウント';
+
+CREATE TRIGGER update_admin_users_updated_at
+  BEFORE UPDATE ON admin_users
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- ================================================
 -- Row Level Security (RLS) ポリシー設定
 -- ================================================
 
@@ -209,6 +234,7 @@ ALTER TABLE company_info_visibility ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE faqs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 
 -- ================================================
 -- 公開ポリシー（全ユーザーが閲覧可能）
@@ -306,6 +332,89 @@ CREATE POLICY "認証ユーザーはFAQを更新可能"
 CREATE POLICY "認証ユーザーはFAQを削除可能"
   ON faqs FOR DELETE
   USING (auth.role() = 'authenticated');
+
+-- 管理者ユーザー: 全ての管理者情報を閲覧可能
+CREATE POLICY "Authenticated users can view admin users"
+  ON admin_users FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can update own profile"
+  ON admin_users FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- ================================================
+-- 管理者認証用の関数
+-- ================================================
+
+-- パスワード検証関数（username/password認証用）
+CREATE OR REPLACE FUNCTION verify_admin_credentials(
+  p_username text,
+  p_password text
+)
+RETURNS TABLE(
+  user_id uuid,
+  username text,
+  display_name text
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    au.id,
+    au.username,
+    au.display_name
+  FROM admin_users au
+  WHERE
+    au.username = p_username
+    AND au.password_hash = crypt(p_password, au.password_hash)
+    AND au.is_active = true;
+
+  UPDATE admin_users
+  SET last_login_at = now()
+  WHERE admin_users.username = p_username;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- パスワード変更関数
+CREATE OR REPLACE FUNCTION change_admin_password(
+  p_user_id uuid,
+  p_old_password text,
+  p_new_password text
+)
+RETURNS boolean AS $$
+DECLARE
+  v_current_hash text;
+BEGIN
+  SELECT password_hash INTO v_current_hash
+  FROM admin_users
+  WHERE id = p_user_id;
+
+  IF v_current_hash = crypt(p_old_password, v_current_hash) THEN
+    UPDATE admin_users
+    SET password_hash = crypt(p_new_password, gen_salt('bf'))
+    WHERE id = p_user_id;
+
+    RETURN true;
+  ELSE
+    RETURN false;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ================================================
+-- 初期データ投入
+-- ================================================
+
+-- デフォルト管理者アカウントの作成
+INSERT INTO admin_users (username, password_hash, display_name)
+VALUES (
+  'admin',
+  crypt('admin', gen_salt('bf')),
+  '管理者'
+)
+ON CONFLICT (username) DO NOTHING;
 
 -- ================================================
 -- 完了メッセージ
