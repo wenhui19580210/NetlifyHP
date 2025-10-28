@@ -238,6 +238,56 @@ export interface Database {
           updated_at?: string
         }
       }
+      announcements: {
+        Row: {
+          id: string
+          title_ja: string
+          title_zh: string | null
+          content_ja: string
+          content_zh: string | null
+          is_visible: boolean
+          start_date: string | null
+          end_date: string | null
+          priority: number
+          background_color: string
+          text_color: string
+          deleted_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title_ja: string
+          title_zh?: string | null
+          content_ja: string
+          content_zh?: string | null
+          is_visible?: boolean
+          start_date?: string | null
+          end_date?: string | null
+          priority?: number
+          background_color?: string
+          text_color?: string
+          deleted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title_ja?: string
+          title_zh?: string | null
+          content_ja?: string
+          content_zh?: string | null
+          is_visible?: boolean
+          start_date?: string | null
+          end_date?: string | null
+          priority?: number
+          background_color?: string
+          text_color?: string
+          deleted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
