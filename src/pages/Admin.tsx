@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle } from 'lucide-react';
+import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { DashboardTab } from '../components/admin/DashboardTab';
 import { CompanyTab } from '../components/admin/CompanyTab';
 import { ServicesTab } from '../components/admin/ServicesTab';
 import { BlogTab } from '../components/admin/BlogTab';
 import { FAQTab } from '../components/admin/FAQTab';
 
-type Tab = 'company' | 'services' | 'blog' | 'faq';
+type Tab = 'dashboard' | 'company' | 'services' | 'blog' | 'faq';
 
 export const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut, loading } = useAuth();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<Tab>('company');
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
 
   // 未ログインの場合はログインページへリダイレクト
   useEffect(() => {
@@ -29,6 +30,7 @@ export const Admin: React.FC = () => {
   };
 
   const tabs = [
+    { id: 'dashboard' as Tab, label: { ja: 'ダッシュボード', zh: '仪表板' }, icon: LayoutDashboard },
     { id: 'company' as Tab, label: { ja: '会社情報', zh: '公司信息' }, icon: Building2 },
     { id: 'services' as Tab, label: { ja: 'サービス', zh: '服务' }, icon: Wrench },
     { id: 'blog' as Tab, label: { ja: 'ブログ', zh: '博客' }, icon: FileText },
@@ -119,6 +121,7 @@ export const Admin: React.FC = () => {
 
       {/* タブコンテンツ */}
       <div className="container mx-auto px-4 py-8">
+        {activeTab === 'dashboard' && <DashboardTab />}
         {activeTab === 'company' && <CompanyTab />}
         {activeTab === 'services' && <ServicesTab />}
         {activeTab === 'blog' && <BlogTab />}
