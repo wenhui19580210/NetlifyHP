@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
 
 type Service = Database['public']['Tables']['services']['Row'];
+type ServiceInsert = Database['public']['Tables']['services']['Insert'];
+type ServiceUpdate = Database['public']['Tables']['services']['Update'];
 
 export const ServicesTab: React.FC = () => {
   const { t } = useLanguage();
@@ -63,12 +65,12 @@ export const ServicesTab: React.FC = () => {
       if (isAdding) {
         const { error } = await supabase
           .from('services')
-          .insert([editData as any]);
+          .insert(editData as ServiceInsert);
         if (error) throw error;
       } else if (editingId) {
         const { error } = await supabase
           .from('services')
-          .update(editData)
+          .update(editData as ServiceUpdate)
           .eq('id', editingId);
         if (error) throw error;
       }
@@ -85,7 +87,7 @@ export const ServicesTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('services')
-        .update({ is_visible: !service.is_visible })
+        .update({ is_visible: !service.is_visible } as ServiceUpdate)
         .eq('id', service.id);
       if (error) throw error;
       await fetchServices();
@@ -100,7 +102,7 @@ export const ServicesTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('services')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date().toISOString() } as ServiceUpdate)
         .eq('id', service.id);
       if (error) throw error;
       await fetchServices();
@@ -113,7 +115,7 @@ export const ServicesTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('services')
-        .update({ deleted_at: null })
+        .update({ deleted_at: null } as ServiceUpdate)
         .eq('id', service.id);
       if (error) throw error;
       await fetchServices();
