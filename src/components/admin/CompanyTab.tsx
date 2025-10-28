@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
 
 type CompanyInfo = Database['public']['Tables']['company_info']['Row'];
+type CompanyInfoUpdate = Database['public']['Tables']['company_info']['Update'];
 
 export const CompanyTab: React.FC = () => {
   const { t } = useLanguage();
@@ -40,7 +41,7 @@ export const CompanyTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('company_info')
-        .update(data)
+        .update(data as CompanyInfoUpdate)
         .eq('id', data.id!);
 
       if (error) throw error;

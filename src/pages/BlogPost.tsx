@@ -18,7 +18,7 @@ interface BlogPost {
 }
 
 const BlogPost: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPost | null>(null);
@@ -35,7 +35,7 @@ const BlogPost: React.FC = () => {
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
-        .eq('id', id)
+        .eq('id', id!)
         .eq('is_visible', true)
         .is('deleted_at', null)
         .single();
@@ -56,7 +56,7 @@ const BlogPost: React.FC = () => {
         .select('*')
         .eq('is_visible', true)
         .is('deleted_at', null)
-        .neq('id', id)
+        .neq('id', id!)
         .order('publish_date', { ascending: false })
         .limit(3);
 

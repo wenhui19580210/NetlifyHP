@@ -1,12 +1,6 @@
 # 東勝会社 CMSウェブサイト
 
-太陽光発電パネルの点検・清掃・保守を専門とする東勝会社のコーポレートサイトです。**React + TypeScript + Supabase**で構築された本格的なCMSシステムを搭載しています。
-
-![Version](https://img.shields.io/badge/version-1.4.0-blue)
-![React](https://img.shields.io/badge/React-18.2-61dafb)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178c6)
-![Supabase](https://img.shields.io/badge/Supabase-2.39-3ecf8e)
-![License](https://img.shields.io/badge/license-UNLICENSED-red)
+太陽光発電パネルの点検・清掃・保守を専門とする東勝会社のコーポレートサイトです。React + TypeScript + Supabaseで構築されたCMSシステムを搭載しています。
 
 ## ✨ 主な機能
 
@@ -20,13 +14,9 @@
 
 ### 🔐 管理画面（CMS）機能
 
-#### ログイン情報
-- **URL**: `/login` → `/admin`
-- **認証方式**: Supabase Auth(email/password)
-- **ログイン手順**:
-  1. Supabase Dashboardで管理者ユーザーを作成(詳細は[SUPABASE_AUTH_SETUP.md](SUPABASE_AUTH_SETUP.md)参照)
-  2. メールアドレスとパスワードでログイン
-  - ⚠️ **重要**: 本番環境では必ず強力なパスワードを使用してください！
+#### ログイン方法
+- Supabase Authenticationに登録したメールアドレスとパスワードでログインできます
+- ログインURL: `/login`
 
 #### 主要機能
 - **WordPress風UI**: 直感的で使いやすいインターフェース
@@ -91,26 +81,9 @@ npm run dev
 
 ### 5. 管理者アカウントの作成とログイン
 
-**認証方式:** Supabase Auth(email/password方式)
-
-**管理者アカウントの作成:**
-1. [Supabase Dashboard](https://supabase.com/dashboard) にアクセス
-2. プロジェクトを選択 → **Authentication** → **Users**
-3. **Add user** をクリック
-4. 以下を入力:
-   - Email: `あなたのメールアドレス`(例: `ganki.rin@gmail.com`)
-   - Password: `任意のパスワード`(例: `admin`)
-   - ✅ **Auto Confirm User** をチェック(重要！)
-5. **Create user** をクリック
-
-**ログイン手順:**
-1. ブラウザで `/login` にアクセス
-2. メールアドレスを入力(例: `ganki.rin@gmail.com`)
-3. パスワードを入力(例: `admin`)
-4. ログインボタンをクリック
-5. `/admin` で管理画面が開きます
-
-**詳細なトラブルシューティング**: [SUPABASE_AUTH_SETUP.md](SUPABASE_AUTH_SETUP.md) を参照してください。
+1. [Supabase Dashboard](https://supabase.com/dashboard) → **Authentication** → **Users** → **Add user**
+2. メールアドレスとパスワードを入力（**Auto Confirm User** をチェック）
+3. ブラウザで `/login` にアクセスして、作成したメールアドレスとパスワードでログイン
 
 ## 📂 プロジェクト構造
 
@@ -188,123 +161,26 @@ tokatsu-solar-cms/
 
 ## 🔧 技術スタック
 
-### フロントエンド
+- **React 18** + **TypeScript 5.3**
+- **Vite 5** - 高速ビルドツール
+- **Tailwind CSS 3.4** - スタイリング
+- **Supabase** - データベース・認証
+- **React Router 6** - ルーティング
 
-- **React 18**: UIライブラリ
-- **TypeScript 5.3**: 型安全な開発
-- **Vite 5**: 高速ビルドツール
-- **Tailwind CSS 3.4**: ユーティリティファーストCSS
-- **React Router 6**: ルーティング
-- **Lucide React**: アイコンライブラリ
 
-### バックエンド
-
-- **Supabase**: BaaS（Backend as a Service）
-  - PostgreSQL: データベース
-  - Authentication: 認証システム
-  - Row Level Security: データセキュリティ
-  - Storage: ファイルストレージ
-
-### 開発ツール
-
-- **ESLint**: コード品質チェック
-- **PostCSS**: CSSの変換
-- **Autoprefixer**: ベンダープレフィックス自動付与
-
-## 📱 レスポンシブデザイン
-
-### ブレークポイント
-
-- **モバイル**: 320px〜767px
-- **タブレット**: 768px〜1023px
-- **デスクトップ**: 1024px以上
-
-### 対応デバイス
-
-✅ iPhone / Android スマートフォン  
-✅ iPad / Android タブレット  
-✅ ノートPC / デスクトップ  
 
 ## 🌐 多言語対応
 
-### サポート言語
+日本語と中国語（簡体字）に対応しています。
 
-- **日本語** (ja-JP)
-- **中国語簡体字** (zh-CN)
 
-### 翻訳管理
 
-- `LanguageContext`で言語状態を管理
-- `useLanguage`フックで翻訳関数`t(ja, zh)`を提供
-- ローカルストレージに言語設定を保存
 
-## 🎨 カラーテーマシステム
-
-### CSS変数
-
-```css
-:root {
-  --color-primary: #f59e0b;        /* メインカラー */
-  --color-primary-dark: #d97706;   /* 濃い色 */
-  --color-primary-light: #fbbf24;  /* 薄い色 */
-  --color-sub: #0ea5e9;            /* サブカラー */
-}
-```
-
-### 変更方法
-
-1. 管理画面の「会社情報」タブを開く
-2. カラーピッカーでメインカラー・サブカラーを選択
-3. 保存すると公開サイトに即座に反映
-
-## 🔒 セキュリティ
-
-### Row Level Security (RLS)
-
-- **公開データ**: `is_visible=true` AND `deleted_at IS NULL`のみ閲覧可
-- **認証ユーザー**: 全データの閲覧・編集が可能
-
-### 認証システム
-
-- Supabase Authentication(email/password方式)
-- セキュアなパスワードハッシュ化(自動)
-- セッション管理(Supabase Auth)
-- Row Level Security(RLS)による安全なデータアクセス
-
-## 📊 パフォーマンス
-
-- **Lighthouse Score**: 
-  - Performance: 90+
-  - Accessibility: 95+
-  - Best Practices: 95+
-  - SEO: 100
-
-- **最適化**:
-  - コード分割
-  - 画像の遅延読み込み
-  - CSS/JSの最小化
-  - CDNによる高速配信（Vercel/Netlify）
 
 ## 🚀 デプロイ
 
-### Vercel（推奨）
-
-```bash
-# Vercel CLIをインストール
-npm i -g vercel
-
-# デプロイ
-vercel
-```
-
-詳細は **[SETUP_GUIDE.md](SETUP_GUIDE.md)** を参照。
-
-### Netlify
-
-1. GitHubにプッシュ
-2. Netlifyでリポジトリを連携
-3. ビルドコマンド: `npm run build`
-4. 公開ディレクトリ: `dist`
+VercelまたはNetlifyを使用してデプロイできます。
+ビルドコマンド: `npm run build`、公開ディレクトリ: `dist`
 
 ## 📝 開発コマンド
 
@@ -324,13 +200,9 @@ npm run typecheck
 
 ## 🐛 トラブルシューティング
 
-詳細は **[SETUP_GUIDE.md#トラブルシューティング](SETUP_GUIDE.md#トラブルシューティング)** を参照。
-
-### よくある問題
-
-1. **データベース接続エラー**: `.env`ファイルを確認
-2. **ログインできない**: Supabaseでユーザーを作成
-3. **ビルドエラー**: `node_modules`を削除して再インストール
+- **ログインできない**: Supabase Dashboardでユーザーが「Auto Confirm User」で作成されているか確認
+- **データベース接続エラー**: `.env`ファイルのSupabase設定を確認
+- **ビルドエラー**: `node_modules`を削除して `npm install` を再実行
 
 ## 🔄 更新履歴
 
@@ -352,17 +224,6 @@ npm run typecheck
 - 👁️ 表示/非表示切り替え機能
 - ♻️ 復元機能の追加
 
-## 📧 サポート
-
-### 技術的な問題
-
-- **Issue報告**: [GitHub Issues](https://github.com/your-repo/issues)
-- **ドキュメント**: README.md, SETUP_GUIDE.md
-- **Supabase公式ドキュメント**: https://supabase.com/docs
-
-### コンテンツ編集のサポート
-
-管理画面の使い方については、**SETUP_GUIDE.md**の「管理者アカウントの作成」セクションを参照してください。
-
+---
 
 **最終更新日**: 2025年10月28日

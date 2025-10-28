@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Eye, EyeOff, RotateCcw, Calendar, Image, Bold, Italic, Link2, List } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Eye, EyeOff, RotateCcw, Calendar, Bold, Italic, Link2, List } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
+type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];
+type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update'];
 
 export const BlogTab: React.FC = () => {
   const { language, t } = useLanguage();
@@ -62,12 +64,12 @@ export const BlogTab: React.FC = () => {
       if (isAdding) {
         const { error } = await supabase
           .from('blog_posts')
-          .insert([editData as any]);
+          .insert(editData as BlogPostInsert);
         if (error) throw error;
       } else if (editingId) {
         const { error } = await supabase
           .from('blog_posts')
-          .update(editData)
+          .update(editData as BlogPostUpdate)
           .eq('id', editingId);
         if (error) throw error;
       }
@@ -84,7 +86,7 @@ export const BlogTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('blog_posts')
-        .update({ is_visible: !post.is_visible })
+        .update({ is_visible: !post.is_visible } as BlogPostUpdate)
         .eq('id', post.id);
       if (error) throw error;
       await fetchPosts();
@@ -99,7 +101,7 @@ export const BlogTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('blog_posts')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date().toISOString() } as BlogPostUpdate)
         .eq('id', post.id);
       if (error) throw error;
       await fetchPosts();
@@ -112,7 +114,7 @@ export const BlogTab: React.FC = () => {
     try {
       const { error } = await supabase
         .from('blog_posts')
-        .update({ deleted_at: null })
+        .update({ deleted_at: null } as BlogPostUpdate)
         .eq('id', post.id);
       if (error) throw error;
       await fetchPosts();
