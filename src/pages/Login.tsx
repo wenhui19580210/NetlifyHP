@@ -29,11 +29,19 @@ export const Login: React.FC = () => {
       await signIn(email, password);
       navigate('/admin');
     } catch (err: any) {
-      setError(
-        err.message === 'Invalid credentials' || err.message?.includes('Invalid login credentials')
-          ? t('メールアドレスまたはパスワードが正しくありません', '邮箱地址或密码不正确')
-          : t('ログインに失敗しました', '登录失败')
-      );
+      console.error('Login error:', err);
+      
+      // エラーメッセージを詳細に表示
+      let errorMessage = '';
+      if (err.message === 'Invalid credentials' || err.message?.includes('Invalid login credentials')) {
+        errorMessage = t('メールアドレスまたはパスワードが正しくありません', '邮箱地址或密码不正确');
+      } else if (err.message?.includes('Email not confirmed')) {
+        errorMessage = t('メールアドレスが確認されていません。Supabaseでユーザーを確認してください。', '电子邮件未确认。请在 Supabase 中确认用户。');
+      } else {
+        errorMessage = t(`ログインに失敗しました: ${err.message}`, `登录失败: ${err.message}`);
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

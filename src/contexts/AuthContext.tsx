@@ -63,15 +63,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    console.log('Attempting to sign in with email:', email);
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase auth error:', error);
+      throw error;
+    }
+    
     if (!data.user) {
+      console.error('No user data returned');
       throw new Error('Invalid credentials');
     }
+
+    console.log('Successfully signed in:', data.user.email);
 
     const adminUser: AdminUser = {
       id: data.user.id,
