@@ -22,10 +22,11 @@
 
 #### ログイン情報
 - **URL**: `/login` → `/admin`
-- **デフォルト管理者アカウント**:
-  - User: `admin`
-  - Password: `admin`
-  - ⚠️ **重要**: 本番環境では必ずパスワードを変更してください！
+- **認証方式**: Supabase Auth(email/password)
+- **ログイン手順**:
+  1. Supabase Dashboardで管理者ユーザーを作成(詳細は[SUPABASE_AUTH_SETUP.md](SUPABASE_AUTH_SETUP.md)参照)
+  2. メールアドレスとパスワードでログイン
+  - ⚠️ **重要**: 本番環境では必ず強力なパスワードを使用してください！
 
 #### 主要機能
 - **WordPress風UI**: 直感的で使いやすいインターフェース
@@ -88,21 +89,28 @@ npm run dev
 
 ブラウザで `http://localhost:5173` にアクセス。
 
-### 5. 管理者アカウントでログイン
+### 5. 管理者アカウントの作成とログイン
 
-**デフォルト管理者アカウント:**
-- **User**: `admin`
-- **Password**: `admin`
-- ⚠️ **重要**: 本番環境では必ずパスワードを変更してください！
+**認証方式:** Supabase Auth(email/password方式)
+
+**管理者アカウントの作成:**
+1. [Supabase Dashboard](https://supabase.com/dashboard) にアクセス
+2. プロジェクトを選択 → **Authentication** → **Users**
+3. **Add user** をクリック
+4. 以下を入力:
+   - Email: `あなたのメールアドレス`(例: `ganki.rin@gmail.com`)
+   - Password: `任意のパスワード`(例: `admin`)
+   - ✅ **Auto Confirm User** をチェック(重要！)
+5. **Create user** をクリック
 
 **ログイン手順:**
 1. ブラウザで `/login` にアクセス
-2. User に `admin` を入力
-3. Password に `admin` を入力
+2. メールアドレスを入力(例: `ganki.rin@gmail.com`)
+3. パスワードを入力(例: `admin`)
 4. ログインボタンをクリック
 5. `/admin` で管理画面が開きます
 
-**注意**: 管理者アカウントは `supabase/migrations/001_initial_schema.sql` で自動作成されます。
+**詳細なトラブルシューティング**: [SUPABASE_AUTH_SETUP.md](SUPABASE_AUTH_SETUP.md) を参照してください。
 
 ## 📂 プロジェクト構造
 
@@ -258,10 +266,10 @@ tokatsu-solar-cms/
 
 ### 認証システム
 
-- カスタム管理者認証システム(username/password方式)
-- bcryptによるパスワードハッシュ化
-- ローカルストレージでのセッション管理
-- パスワード変更機能(`change_admin_password`関数)
+- Supabase Authentication(email/password方式)
+- セキュアなパスワードハッシュ化(自動)
+- セッション管理(Supabase Auth)
+- Row Level Security(RLS)による安全なデータアクセス
 
 ## 📊 パフォーマンス
 
@@ -328,11 +336,10 @@ npm run typecheck
 
 ### v1.4.0 (2025-10-28) - 現在のバージョン
 
-- 🔐 カスタム管理者認証システムの実装(username/password方式)
-- 🗄️ admin_usersテーブルの追加
-- 🔑 bcryptによるパスワードハッシュ化
-- 🛡️ パスワード変更機能の実装
-- 📝 ユーザー名ベースのログインシステム
+- 🔐 Supabase Authentication統合(email/password方式)
+- 🛡️ Row Level Security(RLS)の実装
+- 🔑 セキュアな認証システム
+- 📝 管理画面のアクセス制御
 
 ### v1.3.0 (2025-10-27)
 
