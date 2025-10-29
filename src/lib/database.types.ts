@@ -377,6 +377,59 @@ export interface Database {
           updated_at?: string
         }
       }
+      page_sections: {
+        Row: {
+          id: string
+          section_key: string
+          section_name_ja: string
+          section_name_zh: string | null
+          order_index: number
+          is_visible: boolean
+          background_color: string | null
+          text_color: string | null
+          title_ja: string | null
+          title_zh: string | null
+          subtitle_ja: string | null
+          subtitle_zh: string | null
+          custom_styles: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          section_key: string
+          section_name_ja: string
+          section_name_zh?: string | null
+          order_index?: number
+          is_visible?: boolean
+          background_color?: string | null
+          text_color?: string | null
+          title_ja?: string | null
+          title_zh?: string | null
+          subtitle_ja?: string | null
+          subtitle_zh?: string | null
+          custom_styles?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          section_key?: string
+          section_name_ja?: string
+          section_name_zh?: string | null
+          order_index?: number
+          is_visible?: boolean
+          background_color?: string | null
+          text_color?: string | null
+          title_ja?: string | null
+          title_zh?: string | null
+          subtitle_ja?: string | null
+          subtitle_zh?: string | null
+          custom_styles?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

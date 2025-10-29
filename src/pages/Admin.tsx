@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle, LayoutDashboard, AlertCircle, Search } from 'lucide-react';
+import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle, LayoutDashboard, AlertCircle, Search, Layout } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { DashboardTab } from '../components/admin/DashboardTab';
@@ -10,8 +10,9 @@ import { BlogTab } from '../components/admin/BlogTab';
 import { FAQTab } from '../components/admin/FAQTab';
 import { AnnouncementsTab } from '../components/admin/AnnouncementsTab';
 import { SEOTab } from '../components/admin/SEOTab';
+import { PageSectionsTab } from '../components/admin/PageSectionsTab';
 
-type Tab = 'dashboard' | 'company' | 'services' | 'blog' | 'faq' | 'announcements' | 'seo';
+type Tab = 'dashboard' | 'company' | 'sections' | 'services' | 'blog' | 'faq' | 'announcements' | 'seo';
 
 export const Admin: React.FC = () => {
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ export const Admin: React.FC = () => {
   const tabs = [
     { id: 'dashboard' as Tab, label: { ja: 'ダッシュボード', zh: '仪表板' }, icon: LayoutDashboard },
     { id: 'company' as Tab, label: { ja: '会社情報', zh: '公司信息' }, icon: Building2 },
+    { id: 'sections' as Tab, label: { ja: 'ページ構成', zh: '页面结构' }, icon: Layout },
     { id: 'services' as Tab, label: { ja: 'サービス', zh: '服务' }, icon: Wrench },
     { id: 'blog' as Tab, label: { ja: 'ブログ', zh: '博客' }, icon: FileText },
     { id: 'announcements' as Tab, label: { ja: '緊急告知', zh: '紧急公告' }, icon: AlertCircle },
@@ -132,6 +134,7 @@ export const Admin: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         {activeTab === 'dashboard' && <DashboardTab />}
         {activeTab === 'company' && <CompanyTab />}
+        {activeTab === 'sections' && <PageSectionsTab />}
         {activeTab === 'services' && <ServicesTab />}
         {activeTab === 'blog' && <BlogTab />}
         {activeTab === 'announcements' && <AnnouncementsTab />}
