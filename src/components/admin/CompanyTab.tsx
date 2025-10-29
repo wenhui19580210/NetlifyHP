@@ -224,6 +224,38 @@ export const CompanyTab: React.FC = () => {
           </div>
         </div>
 
+        {/* ロゴURL */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {t('会社ロゴURL', '公司Logo网址')}
+          </label>
+          <input
+            type="url"
+            value={data.logo_url || ''}
+            onChange={(e) => handleChange('logo_url', e.target.value)}
+            placeholder="https://example.com/logo.png"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+          <p className="text-sm text-gray-500 mt-2">
+            {t('ロゴ画像のURLを入力してください。画像ホスティングサービス（Imgur、Cloudinaryなど）を使用できます。', '请输入Logo图片的网址。可以使用图片托管服务（Imgur、Cloudinary等）。')}
+          </p>
+          {data.logo_url && (
+            <div className="mt-3">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('プレビュー', '预览')}
+              </label>
+              <img
+                src={data.logo_url}
+                alt="Company Logo"
+                className="h-16 w-auto border border-gray-300 rounded-lg p-2 bg-white"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+        </div>
+
         {/* カラーテーマ - WordPress風デザイン */}
         <div className="border-t pt-6">
           <div className="flex items-center space-x-2 mb-4">

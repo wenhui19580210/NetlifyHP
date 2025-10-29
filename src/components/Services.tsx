@@ -24,10 +24,11 @@ export const Services: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* セクションタイトル */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {t('🔧 サービス内容', '🔧 服务内容')}
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl md:text-4xl">🔧</span>
+            <span>{t('サービス内容', '服务内容')}</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
             {t(
               '太陽光発電システムの長期安定稼働を支える、充実したサービスラインナップ',
               '支持太阳能发电系统长期稳定运行的完善服务阵容'

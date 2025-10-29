@@ -48,10 +48,11 @@ export const Flow: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* セクションタイトル */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {t('🗓️ ご依頼の流れ', '🗓️ 委托流程')}
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl md:text-4xl">🗓️</span>
+            <span>{t('ご依頼の流れ', '委托流程')}</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
             {t(
               'お問い合わせから作業完了まで、5つのステップで安心サポート',
               '从咨询到工作完成，5个步骤的安心支持'

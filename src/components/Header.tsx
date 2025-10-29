@@ -29,15 +29,15 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* ロゴ */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 md:space-x-3">
             {company?.logo_url && (
-              <img src={company.logo_url} alt="Logo" className="h-10 w-auto" />
+              <img src={company.logo_url} alt="Logo" className="h-8 md:h-10 w-auto flex-shrink-0" />
             )}
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
+            <div className="min-w-0">
+              <h1 className="text-base md:text-xl font-bold text-gray-900 truncate">
                 {language === 'zh' ? company?.company_name_zh : company?.company_name}
               </h1>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-600 truncate">
                 {language === 'zh' ? company?.business_content_zh : company?.business_content_ja}
               </p>
             </div>
