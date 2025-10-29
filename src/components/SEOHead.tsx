@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSEOSettings } from '../hooks/useSEOSettings';
+import { useCompanyInfo } from '../hooks/useCompanyInfo';
 import type { Database } from '../lib/database.types';
 
 type SEOSettings = Database['public']['Tables']['seo_settings']['Row'];
@@ -19,6 +20,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
 }) => {
   const { language } = useLanguage();
   const { getSEOSettingByPageKey } = useSEOSettings();
+  const { data: companyInfo } = useCompanyInfo();
   const [seoData, setSeoData] = useState<SEOSettings | null>(null);
 
   useEffect(() => {
@@ -47,8 +49,14 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     seoData.robots_follow ? 'follow' : 'nofollow',
   ].join(', ');
 
+  // ファビコンURLを取得（会社情報から、なければデフォルト）
+  const faviconUrl = companyInfo?.favicon_url || '/sun-icon.svg';
+
   return (
     <Helmet>
+      {/* ファビコン */}
+      <link rel="icon" type="image/svg+xml" href={faviconUrl} />
+
       {/* 基本メタタグ */}
       <title>{title}</title>
       {description && <meta name="description" content={description} />}

@@ -32,6 +32,7 @@ export interface Database {
           postal_code: string | null
           map_embed: string | null
           logo_url: string | null
+          favicon_url: string | null
           main_color: string
           sub_color: string
           ceo_message_ja: string | null
@@ -58,6 +59,7 @@ export interface Database {
           postal_code?: string | null
           map_embed?: string | null
           logo_url?: string | null
+          favicon_url?: string | null
           main_color?: string
           sub_color?: string
           ceo_message_ja?: string | null
@@ -84,6 +86,7 @@ export interface Database {
           postal_code?: string | null
           map_embed?: string | null
           logo_url?: string | null
+          favicon_url?: string | null
           main_color?: string
           sub_color?: string
           ceo_message_ja?: string | null

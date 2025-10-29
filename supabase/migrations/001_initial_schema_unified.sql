@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS company_info (
 
   -- ブランディング
   logo_url text,
+  favicon_url text,
   main_color text DEFAULT '#f59e0b',
   sub_color text DEFAULT '#0ea5e9',
 
