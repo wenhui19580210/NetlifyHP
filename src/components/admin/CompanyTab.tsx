@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, AlertCircle, CheckCircle, Palette, Eye } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle, Palette, Eye, Upload, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
@@ -13,6 +13,8 @@ export const CompanyTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -66,6 +68,65 @@ export const CompanyTab: React.FC = () => {
 
   const handleChange = (field: keyof CompanyInfo, value: any) => {
     setData({ ...data, [field]: value });
+  };
+
+  const handleImageUpload = async (file: File, type: 'logo' | 'favicon') => {
+    const setUploading = type === 'logo' ? setUploadingLogo : setUploadingFavicon;
+    setUploading(true);
+    setMessage(null);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${type}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('company-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-images')
+        .getPublicUrl(filePath);
+
+      const field = type === 'logo' ? 'logo_url' : 'favicon_url';
+      handleChange(field, publicUrl);
+
+      showMessage('success', t('画像をアップロードしました', '图片上传成功'));
+    } catch (err: any) {
+      console.error('アップロードエラー:', err);
+      showMessage('error', t('画像のアップロードに失敗しました', '图片上传失败') + ': ' + (err.message || ''));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'favicon') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      showMessage('error', t('ファイルサイズが2MBを超えています', '文件大小超过2MB'));
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon'];
+    if (!allowedTypes.includes(file.type)) {
+      showMessage('error', t('対応していない画像形式です', '不支持的图片格式'));
+      return;
+    }
+
+    handleImageUpload(file, type);
+  };
+
+  const handleRemoveImage = (type: 'logo' | 'favicon') => {
+    const field = type === 'logo' ? 'logo_url' : 'favicon_url';
+    handleChange(field, '');
   };
 
   if (loading) {
@@ -224,75 +285,121 @@ export const CompanyTab: React.FC = () => {
           </div>
         </div>
 
-        {/* ロゴURL */}
+        {/* ロゴ画像アップロード */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('会社ロゴURL（ヘッダー表示）', '公司Logo网址（页眉显示）')}
+              {t('会社ロゴ（ヘッダー表示）', '公司Logo（页眉显示）')}
             </label>
-            <input
-              type="url"
-              value={data.logo_url || ''}
-              onChange={(e) => handleChange('logo_url', e.target.value)}
-              placeholder="https://example.com/logo.png"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-            <p className="text-sm text-gray-500 mt-2">
-              {t('ヘッダーに表示されるロゴ画像のURLを入力してください。', '请输入页眉中显示的Logo图片网址。')}
-            </p>
-            {data.logo_url && (
-              <div className="mt-3">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('プレビュー', '预览')}
+
+            {data.logo_url ? (
+              <div className="space-y-3">
+                <div className="relative inline-block">
+                  <img
+                    src={data.logo_url}
+                    alt="Company Logo"
+                    className="h-20 w-auto border-2 border-gray-300 rounded-lg p-2 bg-white"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage('logo')}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    title={t('削除', '删除')}
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <label className="cursor-pointer">
+                  <span className="text-primary font-medium hover:underline">
+                    {uploadingLogo ? t('アップロード中...', '上传中...') : t('画像を選択', '选择图片')}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                    onChange={(e) => handleFileSelect(e, 'logo')}
+                    disabled={uploadingLogo}
+                    className="hidden"
+                  />
                 </label>
-                <img
-                  src={data.logo_url}
-                  alt="Company Logo"
-                  className="h-16 w-auto border border-gray-300 rounded-lg p-2 bg-white"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
               </div>
             )}
+
+            <div className="mt-3 space-y-1">
+              <p className="text-xs text-gray-600">
+                {t('推奨サイズ: 横300〜500px × 縦80〜150px', '推荐尺寸：宽300-500px × 高80-150px')}
+              </p>
+              <p className="text-xs text-gray-600">
+                {t('最大ファイルサイズ: 2MB', '最大文件大小：2MB')}
+              </p>
+              <p className="text-xs text-gray-600">
+                {t('対応形式: JPEG, PNG, WebP, SVG', '支持格式：JPEG、PNG、WebP、SVG')}
+              </p>
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('ファビコンURL（ブラウザタブ表示）', 'Favicon网址（浏览器标签显示）')}
+              {t('ファビコン（ブラウザタブ表示）', 'Favicon（浏览器标签显示）')}
             </label>
-            <input
-              type="url"
-              value={data.favicon_url || ''}
-              onChange={(e) => handleChange('favicon_url', e.target.value)}
-              placeholder="https://example.com/favicon.ico"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-            <p className="text-sm text-gray-500 mt-2">
-              {t('ブラウザタブに表示されるアイコン（.ico, .png, .svg形式）のURLを入力してください。', '请输入浏览器标签中显示的图标（.ico, .png, .svg格式）的网址。')}
-            </p>
-            {data.favicon_url && (
-              <div className="mt-3">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t('プレビュー', '预览')}
+
+            {data.favicon_url ? (
+              <div className="space-y-3">
+                <div className="relative inline-block">
+                  <img
+                    src={data.favicon_url}
+                    alt="Favicon"
+                    className="h-16 w-16 border-2 border-gray-300 rounded-lg p-2 bg-white"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect fill="%23ddd" width="64" height="64"/%3E%3C/svg%3E';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage('favicon')}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    title={t('削除', '删除')}
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <label className="cursor-pointer">
+                  <span className="text-primary font-medium hover:underline">
+                    {uploadingFavicon ? t('アップロード中...', '上传中...') : t('画像を選択', '选择图片')}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml"
+                    onChange={(e) => handleFileSelect(e, 'favicon')}
+                    disabled={uploadingFavicon}
+                    className="hidden"
+                  />
                 </label>
-                <img
-                  src={data.favicon_url}
-                  alt="Favicon"
-                  className="h-8 w-8 border border-gray-300 rounded p-1 bg-white"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
               </div>
             )}
-          </div>
-        </div>
 
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-          <p className="text-sm text-blue-700">
-            {t('💡 画像ホスティングサービス（Imgur、Cloudinaryなど）を使用すると便利です。', '💡 使用图片托管服务（Imgur、Cloudinary等）很方便。')}
-          </p>
+            <div className="mt-3 space-y-1">
+              <p className="text-xs text-gray-600">
+                {t('推奨サイズ: 32×32px または 64×64px', '推荐尺寸：32×32px 或 64×64px')}
+              </p>
+              <p className="text-xs text-gray-600">
+                {t('最大ファイルサイズ: 2MB', '最大文件大小：2MB')}
+              </p>
+              <p className="text-xs text-gray-600">
+                {t('対応形式: ICO, PNG, SVG', '支持格式：ICO、PNG、SVG')}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* カラーテーマ - WordPress風デザイン */}
