@@ -207,9 +207,24 @@ npm run typecheck
 
 ## 🐛 トラブルシューティング
 
-- **ログインできない**: Supabase Dashboardでユーザーが「Auto Confirm User」で作成されているか確認
+### ログインできない場合
+
+このプロジェクトは **Supabase Auth** を使用しています（`admin_users` テーブルのパスワードハッシュは使用されていません）。
+
+詳細は **[LOGIN_SETUP.md](LOGIN_SETUP.md)** または **[TROUBLESHOOTING_JP.md](TROUBLESHOOTING_JP.md)** を参照してください。
+
+**クイックチェックリスト**:
+1. ✅ `.env` ファイルが存在するか確認（`cp .env.example .env`）
+2. ✅ Supabase Dashboard → Authentication → Users でユーザーが作成されているか確認
+3. ✅ ユーザー作成時に **Auto Confirm User** をチェックしたか確認
+4. ✅ Email Confirmed が緑色のチェックマークになっているか確認
+5. ✅ メールアドレスとパスワードでログイン（ユーザー名ではない）
+
+### その他の問題
+
 - **データベース接続エラー**: `.env`ファイルのSupabase設定を確認
 - **ビルドエラー**: `node_modules`を削除して `npm install` を再実行
+- **データが表示されない**: RLSポリシーとテーブル権限を確認（TROUBLESHOOTING_JP.md参照）
 
 ## 🔄 更新履歴
 
@@ -243,4 +258,4 @@ npm run typecheck
 
 ---
 
-**最終更新日**: 2025年10月28日(何かの更新で日付を最新のに変更）
+**最終更新日**: 2025年10月29日

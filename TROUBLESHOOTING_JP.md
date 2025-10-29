@@ -62,6 +62,13 @@ Supabase Dashboard → Table Editor を再読み込み:
 
 ## 管理画面にログインできない
 
+### ⚠️ 重要: このプロジェクトは Supabase Auth を使用しています
+
+このプロジェクトの認証システムは **Supabase Authentication** を使用しています。
+`admin_users` テーブルとパスワードハッシュは**使用されていません**。
+
+詳細な手順は `LOGIN_SETUP.md` を参照してください。
+
 ### 🔴 症状
 - ログインページでメールアドレスとパスワードを入力しても、ログインできない
 - エラーメッセージが表示される
@@ -69,19 +76,19 @@ Supabase Dashboard → Table Editor を再読み込み:
 
 ### 📋 原因
 
-#### 原因1: 認証関数へのアクセス権限不足
+#### 原因1: .envファイルが存在しない
 ```
-Error: permission denied for function verify_admin_credentials
-```
-
-#### 原因2: admin_usersテーブルへのアクセス不可
-```
-Error: permission denied for table admin_users
+Error: Supabase環境変数が設定されていません
 ```
 
-#### 原因3: RLSポリシーの問題
+#### 原因2: Supabase Authでユーザーが作成されていない
 ```
-Error: new row violates row-level security policy
+Error: Invalid login credentials
+```
+
+#### 原因3: メールアドレスが確認されていない
+```
+Error: Email not confirmed
 ```
 
 #### 原因4: 環境変数の設定ミス
@@ -91,69 +98,51 @@ Error: Invalid Supabase URL or key
 
 ### ✅ 解決方法
 
-#### ステップ1: 環境変数を確認
+#### ステップ1: .envファイルを作成
 
-`.env` ファイルを確認:
+```bash
+# .env ファイルが存在しない場合は作成
+cp .env.example .env
+
+# 開発サーバーを再起動
+npm run dev
+```
+
+`.env` ファイルの内容を確認:
 ```env
-VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
+VITE_SUPABASE_URL=https://wigcobzzsurxzkkuperc.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-正しい値は Supabase Dashboard → Settings → API から取得できます。
+#### ステップ2: Supabase でユーザーを作成
 
-#### ステップ2: データベース権限を修正
+1. **Supabase Dashboard にアクセス**
+   - https://supabase.com/dashboard
+   - プロジェクト `wigcobzzsurxzkkuperc` を選択
 
-Supabase Dashboard → SQL Editor で以下を実行:
+2. **Authentication → Users に移動**
 
-```sql
--- admin_usersテーブルへのアクセス権を付与
-GRANT SELECT, UPDATE ON admin_users TO anon, authenticated;
+3. **新しいユーザーを作成**
+   - 「Add user」ボタンをクリック
+   - 以下を入力:
+     ```
+     Email: admin@dongsheng.com
+     Password: admin123456
+     ✅ Auto Confirm User （必ずチェック！）
+     ❌ Send Email Invitation （チェックしない）
+     ```
+   - 「Create user」をクリック
 
--- 認証関数へのEXECUTE権限を付与
-GRANT EXECUTE ON FUNCTION verify_admin_credentials(text, text) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION change_admin_password(uuid, text, text) TO authenticated;
+#### ステップ3: メール確認ステータスを確認
 
--- RLSポリシーを再作成
-DROP POLICY IF EXISTS "Anyone can view admin users" ON admin_users;
-CREATE POLICY "Anyone can view admin users" 
-  ON admin_users FOR SELECT 
-  USING (true);
+Authentication → Users で以下を確認:
 
-DROP POLICY IF EXISTS "Anyone can update admin users" ON admin_users;
-CREATE POLICY "Anyone can update admin users" 
-  ON admin_users FOR UPDATE 
-  USING (true) 
-  WITH CHECK (true);
-```
+- ✅ **Email Confirmed** カラムが緑色のチェックマークになっている
+- ✅ **Status** が「Active」になっている
 
-#### ステップ3: 管理者アカウントを確認
-
-Supabase Dashboard → SQL Editor で確認:
-
-```sql
--- 管理者アカウントが存在するか確認
-SELECT 
-  id, 
-  username, 
-  display_name, 
-  is_active, 
-  created_at 
-FROM admin_users 
-WHERE is_active = true;
-```
-
-アカウントが存在しない場合は、作成:
-
-```sql
-INSERT INTO admin_users (username, password_hash, display_name, is_active)
-VALUES (
-  'admin',
-  crypt('admin', gen_salt('bf')),
-  '管理者',
-  TRUE
-)
-ON CONFLICT (username) DO NOTHING;
-```
+もし未確認の場合:
+1. ユーザーをクリック
+2. 「Confirm Email」ボタンをクリック
 
 #### ステップ4: ブラウザキャッシュをクリア
 
@@ -165,10 +154,17 @@ ON CONFLICT (username) DO NOTHING;
 
 1. `/login` にアクセス
 2. 以下のアカウントでログインを試す:
-   - ユーザー名: `admin`
-   - パスワード: `admin`
+   - **メールアドレス**: `admin@dongsheng.com`
+   - **パスワード**: `admin123456`
 
 ✅ ログイン成功 → ダッシュボードが表示される
+
+### 📝 注意事項
+
+- ❌ `admin_users` テーブルは使用されていません
+- ❌ `verify_admin_credentials` 関数は使用されていません
+- ✅ 認証は完全に Supabase Auth で管理されています
+- ✅ メールアドレスとパスワードでログインします
 
 ---
 
