@@ -9,6 +9,7 @@ import { FAQ } from '../components/FAQ';
 import { Contact } from '../components/Contact';
 import { Footer } from '../components/Footer';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
+import { SEOHead } from '../components/SEOHead';
 import { useCompanyInfo } from '../hooks/useCompanyInfo';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -25,6 +26,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      <SEOHead pageKey="home" />
       <Header />
       {/* 緊急告知バナー */}
       <div className="container mx-auto px-4 pt-4">

@@ -288,6 +288,92 @@ export interface Database {
           updated_at?: string
         }
       }
+      seo_settings: {
+        Row: {
+          id: string
+          page_key: string
+          title_ja: string | null
+          description_ja: string | null
+          keywords_ja: string[] | null
+          title_zh: string | null
+          description_zh: string | null
+          keywords_zh: string[] | null
+          og_title_ja: string | null
+          og_title_zh: string | null
+          og_description_ja: string | null
+          og_description_zh: string | null
+          og_image_url: string | null
+          og_type: string
+          twitter_card: string
+          twitter_site: string | null
+          twitter_creator: string | null
+          structured_data: Json | null
+          canonical_url: string | null
+          robots_index: boolean
+          robots_follow: boolean
+          priority: number
+          change_frequency: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          page_key: string
+          title_ja?: string | null
+          description_ja?: string | null
+          keywords_ja?: string[] | null
+          title_zh?: string | null
+          description_zh?: string | null
+          keywords_zh?: string[] | null
+          og_title_ja?: string | null
+          og_title_zh?: string | null
+          og_description_ja?: string | null
+          og_description_zh?: string | null
+          og_image_url?: string | null
+          og_type?: string
+          twitter_card?: string
+          twitter_site?: string | null
+          twitter_creator?: string | null
+          structured_data?: Json | null
+          canonical_url?: string | null
+          robots_index?: boolean
+          robots_follow?: boolean
+          priority?: number
+          change_frequency?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          page_key?: string
+          title_ja?: string | null
+          description_ja?: string | null
+          keywords_ja?: string[] | null
+          title_zh?: string | null
+          description_zh?: string | null
+          keywords_zh?: string[] | null
+          og_title_ja?: string | null
+          og_title_zh?: string | null
+          og_description_ja?: string | null
+          og_description_zh?: string | null
+          og_image_url?: string | null
+          og_type?: string
+          twitter_card?: string
+          twitter_site?: string | null
+          twitter_creator?: string | null
+          structured_data?: Json | null
+          canonical_url?: string | null
+          robots_index?: boolean
+          robots_follow?: boolean
+          priority?: number
+          change_frequency?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
