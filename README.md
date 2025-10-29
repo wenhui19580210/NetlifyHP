@@ -34,6 +34,12 @@
   - アイキャッチ画像URL設定
   - **ブログ詳細ページ**: 各記事の個別ページ表示
 - **FAQ管理**: よくある質問の管理
+- **SEO設定管理**: 
+  - ページ別SEO設定（タイトル、説明、キーワード）
+  - OGP（Open Graph Protocol）設定
+  - Twitter Card設定
+  - 構造化データ（JSON-LD）管理
+  - robots meta設定（index/noindex, follow/nofollow）
 - **論理削除**: 誤削除を防止するソフトデリート機能
 - **表示/非表示制御**: 公開状態の柔軟な管理
 - **復元機能**: 削除されたコンテンツの簡単復元
@@ -150,6 +156,7 @@ tokatsu-solar-cms/
 | `services` | サービス一覧 | service_name_ja/zh, description, order_index |
 | `blog_posts` | ブログ記事 | title_ja/zh, content, publish_date |
 | `faqs` | よくある質問 | question_ja/zh, answer, order_index |
+| `seo_settings` | SEO設定 | page_key, title_ja/zh, description_ja/zh, keywords, og_image_url |
 
 ### 共通フィールド
 
@@ -206,7 +213,17 @@ npm run typecheck
 
 ## 🔄 更新履歴
 
-### v1.4.0 (2025-10-28) - 現在のバージョン
+### v1.5.0 (2025-10-29) - 現在のバージョン
+
+- 🔍 SEO設定管理機能の追加
+- 📊 ページ別メタタグ設定（title, description, keywords）
+- 🖼️ OGP（Open Graph Protocol）設定
+- 🐦 Twitter Card設定
+- 🔗 構造化データ（JSON-LD）管理
+- 🤖 robots meta設定（index/noindex, follow/nofollow）
+- ♻️ 論理削除関数の改善（汎用関数化）
+
+### v1.4.0 (2025-10-28)
 
 - 🔐 Supabase Authentication統合(email/password方式)
 - 🛡️ Row Level Security(RLS)の実装

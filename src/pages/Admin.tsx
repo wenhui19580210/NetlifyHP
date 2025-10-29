@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle, LayoutDashboard, AlertCircle } from 'lucide-react';
+import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle, LayoutDashboard, AlertCircle, Search } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { DashboardTab } from '../components/admin/DashboardTab';
@@ -9,8 +9,9 @@ import { ServicesTab } from '../components/admin/ServicesTab';
 import { BlogTab } from '../components/admin/BlogTab';
 import { FAQTab } from '../components/admin/FAQTab';
 import { AnnouncementsTab } from '../components/admin/AnnouncementsTab';
+import { SEOTab } from '../components/admin/SEOTab';
 
-type Tab = 'dashboard' | 'company' | 'services' | 'blog' | 'faq' | 'announcements';
+type Tab = 'dashboard' | 'company' | 'services' | 'blog' | 'faq' | 'announcements' | 'seo';
 
 export const Admin: React.FC = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export const Admin: React.FC = () => {
     { id: 'blog' as Tab, label: { ja: 'ブログ', zh: '博客' }, icon: FileText },
     { id: 'announcements' as Tab, label: { ja: '緊急告知', zh: '紧急公告' }, icon: AlertCircle },
     { id: 'faq' as Tab, label: { ja: 'FAQ', zh: '常见问题' }, icon: HelpCircle },
+    { id: 'seo' as Tab, label: { ja: 'SEO設定', zh: 'SEO设置' }, icon: Search },
   ];
 
   if (loading) {
@@ -134,6 +136,7 @@ export const Admin: React.FC = () => {
         {activeTab === 'blog' && <BlogTab />}
         {activeTab === 'announcements' && <AnnouncementsTab />}
         {activeTab === 'faq' && <FAQTab />}
+        {activeTab === 'seo' && <SEOTab />}
       </div>
     </div>
   );
