@@ -29,7 +29,7 @@ export const Home: React.FC = () => {
       <SEOHead pageKey="home" />
       <Header />
       {/* 緊急告知バナー */}
-      <div className="container mx-auto px-4 pt-4">
+      <div className="container mx-auto px-4 pt-20">
         <AnnouncementBanner />
       </div>
       <main>
