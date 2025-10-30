@@ -71,11 +71,14 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
 ### 3. Supabaseデータベースのセットアップ
 
-詳細は **[SETUP_GUIDE.md](SETUP_GUIDE.md)** を参照してください。
+詳細は **[MIGRATION_EXECUTION_GUIDE.md](MIGRATION_EXECUTION_GUIDE.md)** を参照してください。
 
 1. Supabaseで新規プロジェクトを作成
-2. `supabase/migrations/001_initial_schema.sql`を実行
-3. `supabase/seed.sql`でサンプルデータを投入
+2. マイグレーションを順番に実行:
+   - `20251030000001_step1_base_schema.sql` - 基本スキーマ
+   - `20251030000002_step2_rls_policies.sql` - RLSポリシー
+   - `20251030000003_step3_initial_data.sql` - 初期データ
+   - `20251030000004_step4_advanced_features.sql` - 高度な機能
 
 ### 4. 開発サーバーの起動
 
