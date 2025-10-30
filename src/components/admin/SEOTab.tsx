@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Plus, Save, Trash2, Eye, EyeOff, X } from 'lucide-react';
+import { Search, Plus, Save, Trash2, Eye, EyeOff, X, Upload } from 'lucide-react';
 import { useSEOSettings } from '../../hooks/useSEOSettings';
+import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
 
 type SEOSettings = Database['public']['Tables']['seo_settings']['Row'];
@@ -18,6 +19,8 @@ export function SEOTab() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<SEOSettings | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [uploadingOgImage, setUploadingOgImage] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // フォームの初期値
   const getEmptyForm = (): Partial<SEOSettings> => ({
@@ -115,6 +118,66 @@ export function SEOTab() {
   // 文字列をキーワード配列に変換
   const stringToKeywords = (str: string): string[] => {
     return str.split(',').map(k => k.trim()).filter(k => k !== '');
+  };
+
+  // OG画像のアップロード処理
+  const handleOgImageUpload = async (file: File) => {
+    setUploadingOgImage(true);
+    setUploadMessage(null);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `og-image-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('company-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, og_image_url: publicUrl });
+      setUploadMessage({ type: 'success', text: 'OG画像をアップロードしました' });
+
+      setTimeout(() => setUploadMessage(null), 3000);
+    } catch (err: any) {
+      console.error('アップロードエラー:', err);
+      setUploadMessage({ type: 'error', text: '画像のアップロードに失敗しました: ' + (err.message || '') });
+    } finally {
+      setUploadingOgImage(false);
+    }
+  };
+
+  // OG画像ファイル選択処理
+  const handleOgImageFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setUploadMessage({ type: 'error', text: 'ファイルサイズが2MBを超えています' });
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadMessage({ type: 'error', text: '対応していない画像形式です (JPEG, PNG, WebPのみ)' });
+      return;
+    }
+
+    handleOgImageUpload(file);
+  };
+
+  // OG画像を削除
+  const handleRemoveOgImage = () => {
+    setFormData({ ...formData, og_image_url: '' });
   };
 
   // フィルタリング
@@ -405,19 +468,70 @@ export function SEOTab() {
             {/* OGP/Twitter設定 */}
             <div className="space-y-4 md:col-span-2">
               <h4 className="font-semibold text-gray-700 border-b pb-2">OGP / Twitter Card設定</h4>
-              
+
+              {uploadMessage && (
+                <div className={`p-3 rounded-md text-sm ${
+                  uploadMessage.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                }`}>
+                  {uploadMessage.text}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    OG画像URL
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    OG画像 <span className="text-xs text-gray-500">（SNSでシェアされた時に表示される画像）</span>
                   </label>
-                  <input
-                    type="text"
-                    value={formData.og_image_url || ''}
-                    onChange={(e) => setFormData({ ...formData, og_image_url: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                  />
+
+                  {formData.og_image_url ? (
+                    <div className="space-y-3">
+                      <div className="relative inline-block">
+                        <img
+                          src={formData.og_image_url}
+                          alt="OG Image"
+                          className="h-32 w-auto border-2 border-gray-300 rounded-lg"
+                          onError={(e) => {
+                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="100"%3E%3Crect fill="%23ddd" width="200" height="100"/%3E%3C/svg%3E';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveOgImage}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          title="削除"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        ※未設定の場合は会社ロゴが自動的に使用されます
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <label className="cursor-pointer">
+                          <span className="text-blue-600 font-medium hover:underline">
+                            {uploadingOgImage ? 'アップロード中...' : '画像を選択'}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleOgImageFileSelect}
+                            disabled={uploadingOgImage}
+                            className="hidden"
+                          />
+                        </label>
+                        <p className="text-xs text-gray-500 mt-2">
+                          推奨サイズ: 1200×630px | 最大2MB | JPEG, PNG, WebP
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        ※未設定の場合は会社ロゴが自動的に使用されます
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
