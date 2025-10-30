@@ -169,33 +169,7 @@ ALTER VIEW admin_all_faqs OWNER TO postgres;
 
 
 -- ------------------------------------------------
--- 8. 参考: 管理者ユーザー初期データ（オプション）
--- ------------------------------------------------
-
--- 注意: このプロジェクトはSupabase Authenticationを使用します
--- 以下のadmin_usersへのデータ投入は参考用です
--- 実際のログインにはSupabase Dashboard → Authentication → Usersでユーザーを作成してください
-
-INSERT INTO admin_users (username, password_hash, display_name)
-VALUES (
-  'admin',
-  crypt('admin', gen_salt('bf')),
-  '管理者'
-)
-ON CONFLICT (username) DO NOTHING;
-
-INSERT INTO admin_users (username, password_hash, display_name, is_active)
-VALUES (
-  'ganki.rin@gmail.com',
-  crypt('admin', gen_salt('bf')),
-  'ganki.rin',
-  TRUE
-)
-ON CONFLICT (username) DO NOTHING;
-
-
--- ------------------------------------------------
--- 9. 完了メッセージ
+-- 8. 完了メッセージ
 -- ------------------------------------------------
 
 DO $$

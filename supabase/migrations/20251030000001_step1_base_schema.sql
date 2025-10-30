@@ -185,19 +185,7 @@ CREATE TABLE IF NOT EXISTS announcements (
 );
 COMMENT ON TABLE announcements IS '会社からの緊急告知（論理削除対応）';
 
--- 3.7 管理者ユーザーテーブル (admin_users)
--- 注意: このテーブルはSupabase Authと連携するためのメタデータ保存用です
-CREATE TABLE IF NOT EXISTS admin_users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  username text UNIQUE NOT NULL,
-  password_hash text NOT NULL,
-  display_name text NOT NULL,
-  is_active boolean DEFAULT true NOT NULL,
-  last_login_at timestamptz,
-  created_at timestamptz DEFAULT now() NOT NULL,
-  updated_at timestamptz DEFAULT now() NOT NULL
-);
-COMMENT ON TABLE admin_users IS '管理者ユーザーアカウント（参考用・Supabase Authを優先使用）';
+
 
 
 -- ------------------------------------------------
@@ -246,12 +234,7 @@ CREATE TRIGGER update_announcements_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- admin_usersの更新日時を自動更新
-DROP TRIGGER IF EXISTS update_admin_users_updated_at ON admin_users;
-CREATE TRIGGER update_admin_users_updated_at
-  BEFORE UPDATE ON admin_users
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+
 
 
 -- ------------------------------------------------

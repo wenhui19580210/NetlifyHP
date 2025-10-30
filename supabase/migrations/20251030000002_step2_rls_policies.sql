@@ -19,7 +19,7 @@ ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE faqs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+
 
 
 -- ------------------------------------------------
@@ -50,8 +50,7 @@ DROP POLICY IF EXISTS "認証ユーザーは全告知を閲覧可能" ON announc
 DROP POLICY IF EXISTS "認証ユーザーは告知を追加可能" ON announcements;
 DROP POLICY IF EXISTS "認証ユーザーは告知を更新可能" ON announcements;
 DROP POLICY IF EXISTS "認証ユーザーは告知を削除可能" ON announcements;
-DROP POLICY IF EXISTS "Anyone can view admin users" ON admin_users;
-DROP POLICY IF EXISTS "Anyone can update admin users" ON admin_users;
+
 DROP POLICY IF EXISTS "認証ユーザーは会社情報を編集可能" ON company_info;
 DROP POLICY IF EXISTS "認証ユーザーは会社情報表示設定を編集可能" ON company_info_visibility;
 DROP POLICY IF EXISTS "認証ユーザーは全サービスを閲覧可能" ON services;
@@ -66,8 +65,7 @@ DROP POLICY IF EXISTS "認証ユーザーは全FAQを閲覧可能" ON faqs;
 DROP POLICY IF EXISTS "認証ユーザーはFAQを追加可能" ON faqs;
 DROP POLICY IF EXISTS "認証ユーザーはFAQを更新可能" ON faqs;
 DROP POLICY IF EXISTS "認証ユーザーはFAQを削除可能" ON faqs;
-DROP POLICY IF EXISTS "Authenticated users can view admin users" ON admin_users;
-DROP POLICY IF EXISTS "Authenticated users can update own profile" ON admin_users;
+
 
 
 -- ------------------------------------------------
@@ -240,19 +238,7 @@ CREATE POLICY "認証ユーザーは告知を削除可能"
   TO authenticated
   USING (true);
 
--- 管理者ユーザー: 認証済みユーザーは閲覧と更新のみ可能
-CREATE POLICY "認証ユーザーは管理者ユーザーを閲覧可能" 
-  ON admin_users 
-  FOR SELECT 
-  TO authenticated
-  USING (true);
 
-CREATE POLICY "認証ユーザーは管理者ユーザーを更新可能" 
-  ON admin_users 
-  FOR UPDATE 
-  TO authenticated
-  USING (true) 
-  WITH CHECK (true);
 
 
 -- ------------------------------------------------
@@ -306,73 +292,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- ------------------------------------------------
--- 6. 管理者認証用関数（参考用・使用非推奨）
--- ------------------------------------------------
-
--- 注意: これらの関数はadmin_usersテーブルを使用する従来の認証用です
--- Supabase Authを使用する場合は不要ですが、互換性のために残しています
-
--- パスワード検証関数（username/password認証用）
-CREATE OR REPLACE FUNCTION verify_admin_credentials(
-  p_username text,
-  p_password text
-)
-RETURNS TABLE(
-  user_id uuid,
-  username text,
-  display_name text
-) AS $$
-BEGIN
-  RETURN QUERY
-  SELECT
-    au.id,
-    au.username,
-    au.display_name
-  FROM admin_users au
-  WHERE
-    au.username = p_username
-    AND au.password_hash = crypt(p_password, au.password_hash)
-    AND au.is_active = true;
-
-  -- 最終ログイン日時を更新
-  UPDATE admin_users
-  SET last_login_at = now()
-  WHERE admin_users.username = p_username;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- パスワード変更関数
-CREATE OR REPLACE FUNCTION change_admin_password(
-  p_user_id uuid,
-  p_old_password text,
-  p_new_password text
-)
-RETURNS boolean AS $$
-DECLARE
-  v_current_hash text;
-BEGIN
-  -- 現在のパスワードハッシュを取得
-  SELECT password_hash INTO v_current_hash
-  FROM admin_users
-  WHERE id = p_user_id;
-
-  -- 古いパスワードを検証
-  IF v_current_hash = crypt(p_old_password, v_current_hash) THEN
-    -- 新しいパスワードを設定
-    UPDATE admin_users
-    SET password_hash = crypt(p_new_password, gen_salt('bf'))
-    WHERE id = p_user_id;
-
-    RETURN true;
-  ELSE
-    RETURN false;
-  END IF;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-
--- ------------------------------------------------
--- 7. 完了メッセージ
+-- 6. 完了メッセージ
 -- ------------------------------------------------
 
 DO $$
