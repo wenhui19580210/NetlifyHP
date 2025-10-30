@@ -33,6 +33,8 @@ export interface Database {
           map_embed: string | null
           logo_url: string | null
           favicon_url: string | null
+          hero_icon_url: string | null
+          hero_icon_visible: boolean
           main_color: string
           sub_color: string
           ceo_message_ja: string | null
@@ -60,6 +62,8 @@ export interface Database {
           map_embed?: string | null
           logo_url?: string | null
           favicon_url?: string | null
+          hero_icon_url?: string | null
+          hero_icon_visible?: boolean
           main_color?: string
           sub_color?: string
           ceo_message_ja?: string | null
@@ -87,6 +91,8 @@ export interface Database {
           map_embed?: string | null
           logo_url?: string | null
           favicon_url?: string | null
+          hero_icon_url?: string | null
+          hero_icon_visible?: boolean
           main_color?: string
           sub_color?: string
           ceo_message_ja?: string | null
