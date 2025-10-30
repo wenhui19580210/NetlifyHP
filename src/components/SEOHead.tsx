@@ -52,6 +52,17 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   // ファビコンURLを取得（会社情報から、なければデフォルト）
   const faviconUrl = companyInfo?.favicon_url || '/sun-icon.svg';
 
+  // OG画像は会社ロゴを優先、なければSEO設定のOG画像を使用
+  const ogImageUrl = companyInfo?.logo_url || seoData.og_image_url || '';
+
+  // ファビコンの動的更新（React Helmetの制限を回避）
+  useEffect(() => {
+    const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
+    if (link) {
+      link.href = faviconUrl;
+    }
+  }, [faviconUrl]);
+
   return (
     <Helmet>
       {/* ファビコン */}
@@ -74,7 +85,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:type" content={seoData.og_type} />
       {ogTitle && <meta property="og:title" content={ogTitle} />}
       {ogDescription && <meta property="og:description" content={ogDescription} />}
-      {seoData.og_image_url && <meta property="og:image" content={seoData.og_image_url} />}
+      {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
       {seoData.canonical_url && <meta property="og:url" content={seoData.canonical_url} />}
 
       {/* Twitter Card */}
@@ -83,7 +94,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       {seoData.twitter_creator && <meta name="twitter:creator" content={seoData.twitter_creator} />}
       {ogTitle && <meta name="twitter:title" content={ogTitle} />}
       {ogDescription && <meta name="twitter:description" content={ogDescription} />}
-      {seoData.og_image_url && <meta name="twitter:image" content={seoData.og_image_url} />}
+      {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
 
       {/* 構造化データ (JSON-LD) */}
       {seoData.structured_data && (
