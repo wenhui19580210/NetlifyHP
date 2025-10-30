@@ -70,7 +70,7 @@ export const CompanyTab: React.FC = () => {
     setData({ ...data, [field]: value });
   };
 
-  const handleImageUpload = async (file: File, type: 'logo' | 'favicon') => {
+  const handleImageUpload = async (file: File, type: 'logo' | 'favicon' | 'hero_icon') => {
     const setUploading = type === 'logo' ? setUploadingLogo : setUploadingFavicon;
     setUploading(true);
     setMessage(null);
@@ -93,7 +93,7 @@ export const CompanyTab: React.FC = () => {
         .from('company-images')
         .getPublicUrl(filePath);
 
-      const field = type === 'logo' ? 'logo_url' : 'favicon_url';
+      const field = type === 'logo' ? 'logo_url' : type === 'favicon' ? 'favicon_url' : 'hero_icon_url';
       handleChange(field, publicUrl);
 
       showMessage('success', t('画像をアップロードしました', '图片上传成功'));
@@ -105,7 +105,7 @@ export const CompanyTab: React.FC = () => {
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'favicon') => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'favicon' | 'hero_icon') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -124,8 +124,8 @@ export const CompanyTab: React.FC = () => {
     handleImageUpload(file, type);
   };
 
-  const handleRemoveImage = (type: 'logo' | 'favicon') => {
-    const field = type === 'logo' ? 'logo_url' : 'favicon_url';
+  const handleRemoveImage = (type: 'logo' | 'favicon' | 'hero_icon') => {
+    const field = type === 'logo' ? 'logo_url' : type === 'favicon' ? 'favicon_url' : 'hero_icon_url';
     handleChange(field, '');
   };
 
@@ -286,7 +286,7 @@ export const CompanyTab: React.FC = () => {
         </div>
 
         {/* ロゴ画像アップロード */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               {t('会社ロゴ（ヘッダー表示）', '公司Logo（页眉显示）')}
@@ -346,7 +346,7 @@ export const CompanyTab: React.FC = () => {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('ファビコン（ブラウザタブ表示）', 'Favicon（浏览器标签显示）')}
+              {t('ファビコン（ブラウザタブ・フッター）', 'Favicon（浏览器标签・页脚）')}
             </label>
 
             {data.favicon_url ? (
@@ -398,6 +398,84 @@ export const CompanyTab: React.FC = () => {
               <p className="text-xs text-gray-600">
                 {t('対応形式: ICO, PNG, SVG', '支持格式：ICO、PNG、SVG')}
               </p>
+              <p className="text-xs text-gray-500 mt-2">
+                {t('※フッターのロゴとして自動使用されます', '※自动用作页脚Logo')}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {t('ヒーローアイコン（トップページ）', '英雄图标（首页）')}
+            </label>
+
+            {data.hero_icon_url ? (
+              <div className="space-y-3">
+                <div className="relative inline-block">
+                  <img
+                    src={data.hero_icon_url}
+                    alt="Hero Icon"
+                    className="h-16 w-16 border-2 border-gray-300 rounded-lg p-2 bg-white"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect fill="%23ddd" width="64" height="64"/%3E%3C/svg%3E';
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage('hero_icon')}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    title={t('削除', '删除')}
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <label className="cursor-pointer">
+                  <span className="text-primary font-medium hover:underline">
+                    {uploadingFavicon ? t('アップロード中...', '上传中...') : t('画像を選択', '选择图片')}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml"
+                    onChange={(e) => handleFileSelect(e, 'hero_icon')}
+                    disabled={uploadingFavicon}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
+
+            <div className="mt-3 space-y-1">
+              <p className="text-xs text-gray-600">
+                {t('推奨サイズ: 64×64px', '推荐尺寸：64×64px')}
+              </p>
+              <p className="text-xs text-gray-600">
+                {t('最大ファイルサイズ: 2MB', '最大文件大小：2MB')}
+              </p>
+              <p className="text-xs text-gray-600">
+                {t('対応形式: ICO, PNG, SVG', '支持格式：ICO、PNG、SVG')}
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                {t('※未設定時はファビコンを使用', '※未设置时使用Favicon')}
+              </p>
+            </div>
+
+            {/* ヒーローアイコン表示ON/OFF */}
+            <div className="mt-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.hero_icon_visible !== false}
+                  onChange={(e) => handleChange('hero_icon_visible', e.target.checked)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-gray-700">
+                  {t('ヒーローセクションにアイコンを表示', '在首页英雄区域显示图标')}
+                </span>
+              </label>
             </div>
           </div>
         </div>
