@@ -38,9 +38,15 @@ export function useSEOSettings() {
         .select('*')
         .eq('page_key', pageKey)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        // PGRST116 は「データが見つからない」エラーなので無視
+        if (error.code !== 'PGRST116') {
+          console.error(`SEO設定の取得に失敗しました (page_key: ${pageKey}):`, error);
+        }
+        return null;
+      }
       return data;
     } catch (err) {
       console.error(`SEO設定の取得に失敗しました (page_key: ${pageKey}):`, err);

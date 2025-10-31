@@ -23,6 +23,9 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   const { data: companyInfo } = useCompanyInfo();
   const [seoData, setSeoData] = useState<SEOSettings | null>(null);
 
+  // ブラウザタブ用ファビコンURLを取得（優先順位：browser_favicon_url > favicon_url > デフォルト）
+  const faviconUrl = companyInfo?.browser_favicon_url || companyInfo?.favicon_url || '/sun-icon.svg';
+
   useEffect(() => {
     const fetchSEO = async () => {
       const data = await getSEOSettingByPageKey(pageKey);
@@ -30,10 +33,18 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     };
 
     fetchSEO();
-  }, [pageKey, getSEOSettingByPageKey]);
+  }, [pageKey]);
 
+  // SEOデータが取得できない場合はデフォルト値を使用
   if (!seoData) {
-    return null;
+    return (
+      <Helmet>
+        <title>{customTitle || (companyInfo?.name_ja || '会社名')}</title>
+        {customDescription && <meta name="description" content={customDescription} />}
+        {faviconUrl && <link rel="icon" type="image/svg+xml" href={faviconUrl} />}
+        <html lang={language === 'ja' ? 'ja' : 'zh-CN'} />
+      </Helmet>
+    );
   }
 
   // 言語に応じたデータを取得
@@ -48,9 +59,6 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     seoData.robots_index ? 'index' : 'noindex',
     seoData.robots_follow ? 'follow' : 'nofollow',
   ].join(', ');
-
-  // ブラウザタブ用ファビコンURLを取得（優先順位：browser_favicon_url > favicon_url > デフォルト）
-  const faviconUrl = companyInfo?.browser_favicon_url || companyInfo?.favicon_url || '/sun-icon.svg';
 
   // OG画像は会社ロゴを優先、なければSEO設定のOG画像を使用
   const ogImageUrl = companyInfo?.logo_url || seoData.og_image_url || '';
