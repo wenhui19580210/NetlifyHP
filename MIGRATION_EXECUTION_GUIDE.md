@@ -1,226 +1,233 @@
-# マイグレーション実行ガイド
+# データベースマイグレーション実行ガイド
 
-このガイドでは、新しい4ステップマイグレーションの実行方法を説明します。
+## 📚 概要
 
-## 📋 概要
+このガイドでは、Supabaseデータベースにマイグレーションを適用する手順を説明します。
 
-マイグレーションは以下の4つのステップに分かれています:
+## 🎯 マイグレーション一覧
 
-1. **Step 1**: 基本テーブル構造とエクステンション
-2. **Step 2**: RLSポリシーと認証設定
-3. **Step 3**: 初期データとビュー
-4. **Step 4**: SEO設定、ストレージ、高度な機能
+### 必須マイグレーション（初回セットアップ時）
 
-## 🎯 実行方法
+1. **20251030000001_step1_base_schema.sql** - 基本スキーマ
+2. **20251030000002_step2_rls_policies.sql** - RLSポリシー
+3. **20251030000003_step3_initial_data.sql** - 初期データ
+4. **20251030000004_step4_advanced_features.sql** - 高度な機能
 
-### オプション1: Supabase Dashboard（推奨）
+### オプション・追加機能マイグレーション
 
-#### Step 1: 準備
+5. **20251030000005_add_hero_icon_fields.sql** - ヒーローアイコンフィールド追加
+6. **20251031000001_add_browser_favicon.sql** - ブラウザタブ用ファビコンフィールド追加
 
-1. **Supabase Dashboardにログイン**
-   - https://supabase.com/dashboard にアクセス
-   - プロジェクトを選択: `wigcobzzsurxzkkuperc`
+## 🚀 実行方法
 
-2. **SQL Editorを開く**
-   - 左サイドバーから `SQL Editor` をクリック
+### 方法1: Supabase Dashboard（推奨）
 
-#### Step 2: マイグレーション実行
+最も簡単で確実な方法です。
 
-各ステップを**順番に**実行してください:
+#### ステップ1: Dashboardにログイン
 
-##### ステップ 1: 基本スキーマ
+1. [Supabase Dashboard](https://supabase.com/dashboard) にアクセス
+2. 対象のプロジェクトを選択
 
-1. `+ New query` をクリック
-2. `supabase/migrations/20251030000001_step1_base_schema.sql` の内容をコピー
+#### ステップ2: SQL Editorを開く
+
+1. 左サイドバーから **SQL Editor** をクリック
+2. 右上の **+ New query** ボタンをクリック
+
+#### ステップ3: マイグレーションSQLを実行
+
+1. `supabase/migrations/` ディレクトリから対象のSQLファイルを開く
+2. SQLの内容を全てコピー
 3. SQL Editorに貼り付け
-4. `Run` ボタンをクリック
-5. 実行完了を確認（緑のチェックマーク）
+4. 右下の **Run** ボタンをクリック
 
-##### ステップ 2: RLSポリシー
+#### ステップ4: 実行結果を確認
 
-1. `+ New query` をクリック
-2. `supabase/migrations/20251030000002_step2_rls_policies.sql` の内容をコピー
-3. SQL Editorに貼り付け
-4. `Run` ボタンをクリック
-5. 実行完了を確認
+- ✅ **Success** と表示されれば成功
+- ❌ エラーが表示された場合は、エラーメッセージを確認
 
-##### ステップ 3: 初期データ
+### 方法2: Supabase CLI
 
-1. `+ New query` をクリック
-2. `supabase/migrations/20251030000003_step3_initial_data.sql` の内容をコピー
-3. SQL Editorに貼り付け
-4. `Run` ボタンをクリック
-5. 実行完了を確認
+ローカルで開発している場合に推奨されます。
 
-##### ステップ 4: 高度な機能
-
-1. `+ New query` をクリック
-2. `supabase/migrations/20251030000004_step4_advanced_features.sql` の内容をコピー
-3. SQL Editorに貼り付け
-4. `Run` ボタンをクリック
-5. 実行完了を確認
-
-### オプション2: Supabase CLI
+#### 前提条件
 
 ```bash
-# Supabase CLIをインストール（未インストールの場合）
+# Supabase CLIのインストール（未インストールの場合）
 npm install -g supabase
+```
 
-# プロジェクトにログイン
-supabase login
+#### ステップ1: プロジェクトにリンク
 
-# プロジェクトをリンク
-supabase link --project-ref wigcobzzsurxzkkuperc
+```bash
+cd /home/user/webapp
+supabase link --project-ref YOUR_PROJECT_REF
+```
 
-# 全マイグレーションを実行
+**YOUR_PROJECT_REF の取得方法:**
+- Supabase Dashboard → Settings → General → Reference ID
+
+#### ステップ2: マイグレーションを実行
+
+```bash
+# すべてのマイグレーションを実行
 supabase db push
 
-# または個別に実行
-supabase db execute --file supabase/migrations/20251030000001_step1_base_schema.sql
-supabase db execute --file supabase/migrations/20251030000002_step2_rls_policies.sql
-supabase db execute --file supabase/migrations/20251030000003_step3_initial_data.sql
-supabase db execute --file supabase/migrations/20251030000004_step4_advanced_features.sql
+# または特定のマイグレーションファイルを実行
+supabase db execute --file supabase/migrations/20251031000001_add_browser_favicon.sql
 ```
 
-## ✅ 動作確認
+### 方法3: psql（上級者向け）
 
-### 1. テーブル作成の確認
+PostgreSQLクライアントを使用して直接接続します。
 
-Supabase Dashboard → `Table Editor` で以下のテーブルが存在することを確認:
+#### ステップ1: 接続情報を取得
 
-- ✅ `company_info`
-- ✅ `company_info_visibility`
-- ✅ `services`
-- ✅ `blog_posts`
-- ✅ `faqs`
-- ✅ `announcements`
-- ✅ `admin_users`
-- ✅ `seo_settings`
-- ✅ `page_sections`
+Supabase Dashboard → Settings → Database
 
-### 2. RLSポリシーの確認
+- Host: `db.YOUR_PROJECT_REF.supabase.co`
+- Port: `5432`
+- Database: `postgres`
+- User: `postgres`
+- Password: **Databaseタブで確認**
+
+#### ステップ2: psqlで接続
+
+```bash
+# パスワードを環境変数に設定
+export PGPASSWORD='your_database_password'
+
+# psqlで接続してマイグレーションを実行
+psql \
+  -h db.YOUR_PROJECT_REF.supabase.co \
+  -p 5432 \
+  -d postgres \
+  -U postgres \
+  -f supabase/migrations/20251031000001_add_browser_favicon.sql
+```
+
+## ✅ 実行確認
+
+### ブラウザタブ用ファビコンフィールドの確認
+
+マイグレーション `20251031000001_add_browser_favicon.sql` を実行した後：
 
 ```sql
--- RLSポリシーの一覧を確認
-SELECT schemaname, tablename, policyname, roles, cmd
-FROM pg_policies 
-WHERE schemaname = 'public'
-ORDER BY tablename, policyname;
+-- カラムの存在確認
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'company_info'
+  AND column_name IN ('browser_favicon_url', 'favicon_url', 'hero_icon_url')
+ORDER BY column_name;
 ```
 
-期待される結果:
-- 各テーブルに公開ポリシー（SELECT用）が存在
-- 各テーブルに認証ユーザー向けポリシー（authenticated用）が存在
+**期待される結果:**
 
-### 3. サンプルデータの確認
+| column_name         | data_type | is_nullable |
+|---------------------|-----------|-------------|
+| browser_favicon_url | text      | YES         |
+| favicon_url         | text      | YES         |
+| hero_icon_url       | text      | YES         |
+
+### データの確認
 
 ```sql
--- サービスデータの確認
-SELECT service_name_ja, is_visible, deleted_at FROM services;
-
--- ブログ記事の確認
-SELECT title_ja, is_visible, deleted_at FROM blog_posts;
-
--- FAQの確認
-SELECT question_ja, is_visible FROM faqs;
+SELECT 
+  id,
+  company_name,
+  browser_favicon_url,
+  favicon_url,
+  hero_icon_url
+FROM company_info;
 ```
-
-### 4. ビューの確認
-
-```sql
--- 管理者用ビューの確認
-SELECT * FROM admin_all_services;
-SELECT * FROM admin_all_blog_posts;
-SELECT * FROM admin_all_faqs;
-```
-
-## 🔐 認証設定
-
-マイグレーション完了後、管理者ユーザーを作成してください:
-
-### Supabase Authユーザーの作成
-
-1. **Supabase Dashboard → Authentication → Users**
-2. **Add user** → **Create a new user** をクリック
-3. ユーザー情報を入力:
-   ```
-   Email: admin@dongsheng.com
-   Password: （強力なパスワードを設定）
-   ✅ Auto Confirm User （必ずチェック）
-   ```
-4. **Create user** をクリック
-5. ユーザーのステータスが **Active** になっていることを確認
-
-詳細は `LOGIN_SETUP.md` を参照してください。
-
-## 🧪 ログインテスト
-
-1. **開発サーバーを起動**
-   ```bash
-   cd /home/user/webapp
-   npm run dev
-   ```
-
-2. **ログインページにアクセス**
-   - ブラウザで `http://localhost:5173/login` にアクセス
-
-3. **ログイン**
-   - 作成したメールアドレスとパスワードでログイン
-   - 成功すると `/admin` にリダイレクトされます
-
-4. **管理画面の動作確認**
-   - 会社情報タブ: データが表示される
-   - サービスタブ: サービス一覧が表示される
-   - ブログタブ: ブログ記事が表示される
-   - FAQタブ: FAQ一覧が表示される
 
 ## 🐛 トラブルシューティング
 
-### エラー: "relation already exists"
+### エラー: "column already exists"
 
-**原因**: テーブルが既に存在しています
+**原因:** カラムが既に存在している
 
-**解決策**:
-```sql
--- 既存テーブルを削除（注意: データも削除されます）
-DROP TABLE IF EXISTS seo_settings CASCADE;
-DROP TABLE IF EXISTS page_sections CASCADE;
--- その後、該当するステップを再実行
-```
+**解決策:** これは正常です。マイグレーションでは `ADD COLUMN IF NOT EXISTS` を使用しているため、既存のカラムには影響しません。
 
 ### エラー: "permission denied"
 
-**原因**: RLSポリシーが正しく設定されていません
+**原因:** 実行ユーザーに権限がない
 
-**解決策**:
-1. Step 2のマイグレーションを再実行
-2. ブラウザのキャッシュをクリア
-3. 開発サーバーを再起動
+**解決策:**
 
-### データが表示されない
+```sql
+-- postgresユーザーで実行していることを確認
+-- または以下を実行して権限を付与
+GRANT ALL ON company_info TO postgres;
+```
 
-**確認事項**:
-1. `.env` ファイルのSupabase URL/Key が正しいか
-2. ブラウザの開発者ツール（F12）でエラーを確認
-3. Supabase Dashboardで直接データを確認
-4. RLSポリシーが有効になっているか確認
+### エラー: "relation does not exist"
 
-## 📚 関連ドキュメント
+**原因:** 前のマイグレーションが実行されていない
 
-- [LOGIN_SETUP.md](LOGIN_SETUP.md) - ログイン設定の詳細ガイド
-- [TROUBLESHOOTING_JP.md](TROUBLESHOOTING_JP.md) - 問題解決ガイド
-- [SUPABASE_AUTH_SETUP.md](SUPABASE_AUTH_SETUP.md) - Supabase Auth設定
+**解決策:** 
+1. マイグレーションを順番に実行してください
+2. 基本スキーママイグレーション（step1）を先に実行
 
-## 🎉 完了後の確認リスト
+### マイグレーションが反映されない
 
-- [ ] 全4ステップのマイグレーションが正常に完了
-- [ ] テーブルが正しく作成されている
-- [ ] サンプルデータが投入されている
-- [ ] RLSポリシーが設定されている
-- [ ] Supabase Authユーザーが作成されている
-- [ ] ログインが正常に動作する
-- [ ] 管理画面でデータの閲覧・編集ができる
+**確認事項:**
+
+1. **正しいプロジェクトに接続しているか確認**
+   ```sql
+   SELECT current_database();
+   ```
+
+2. **テーブルが存在するか確認**
+   ```sql
+   SELECT table_name 
+   FROM information_schema.tables 
+   WHERE table_schema = 'public'
+   ORDER BY table_name;
+   ```
+
+3. **ブラウザのキャッシュをクリア**
+   - Ctrl+Shift+R (Windows/Linux)
+   - Cmd+Shift+R (Mac)
+
+## 📋 チェックリスト
+
+マイグレーション実行前:
+
+- [ ] `.env` ファイルに正しいSupabase接続情報が設定されている
+- [ ] Supabase Dashboardにログインできる
+- [ ] 実行するマイグレーションファイルを確認した
+
+マイグレーション実行後:
+
+- [ ] SQL実行が成功した（エラーがない）
+- [ ] テーブル/カラムが作成されたことを確認した
+- [ ] データが正しく移行されたことを確認した
+- [ ] 開発サーバーを再起動した
+- [ ] ブラウザのキャッシュをクリアした
+- [ ] アプリケーションが正常に動作することを確認した
+
+## 🆘 サポート
+
+問題が解決しない場合は、以下の情報を含めて報告してください:
+
+1. 実行したマイグレーションファイル名
+2. エラーメッセージの全文
+3. Supabaseプロジェクトのバージョン
+4. 実行方法（Dashboard / CLI / psql）
+5. 以下のクエリ結果:
+
+```sql
+-- テーブル一覧
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'public' ORDER BY table_name;
+
+-- カラム一覧
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'company_info';
+```
 
 ---
 
-**最終更新日**: 2025年10月30日
+**最終更新日**: 2025年10月31日
