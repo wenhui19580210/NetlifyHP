@@ -6,6 +6,13 @@
 -- SEO設定が存在しない場合に404エラーを防ぐため
 -- ================================================
 
+-- テーブル構造をSupabaseに合わせて拡張する（推奨）
+
+ALTER TABLE seo_settings
+ADD COLUMN priority numeric(2,1) DEFAULT 0.5,
+ADD COLUMN change_frequency text DEFAULT 'monthly',
+ADD COLUMN is_active boolean DEFAULT true;
+
 -- ------------------------------------------------
 -- デフォルトSEO設定の挿入
 -- ------------------------------------------------
