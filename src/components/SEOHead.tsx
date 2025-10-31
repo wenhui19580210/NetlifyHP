@@ -49,8 +49,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     seoData.robots_follow ? 'follow' : 'nofollow',
   ].join(', ');
 
-  // ファビコンURLを取得（会社情報から、なければデフォルト）
-  const faviconUrl = companyInfo?.favicon_url || '/sun-icon.svg';
+  // ブラウザタブ用ファビコンURLを取得（会社情報から、なければデフォルト）
+  const faviconUrl = companyInfo?.browser_favicon_url || '/sun-icon.svg';
 
   // OG画像は会社ロゴを優先、なければSEO設定のOG画像を使用
   const ogImageUrl = companyInfo?.logo_url || seoData.og_image_url || '';

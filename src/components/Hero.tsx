@@ -16,7 +16,7 @@ export const Hero: React.FC = () => {
 
   // ヒーローアイコンの表示制御とURL取得
   const shouldShowIcon = company?.hero_icon_visible !== false; // デフォルトはtrue
-  const iconUrl = company?.hero_icon_url || company?.favicon_url; // hero_icon_urlがなければfavicon_urlを使用
+  const iconUrl = company?.hero_icon_url || company?.browser_favicon_url; // hero_icon_urlがなければbrowser_favicon_urlを使用
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 pt-16">
@@ -31,25 +31,28 @@ export const Hero: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center">
           {/* アイコン - 管理画面から制御可能 */}
           {shouldShowIcon && (
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-6 shadow-lg">
+            <div className="inline-flex items-center justify-center mb-6">
               {iconUrl ? (
-                <img 
-                  src={iconUrl} 
-                  alt="Company Icon" 
-                  className="w-12 h-12 object-contain"
+                <img
+                  src={iconUrl}
+                  alt="Company Icon"
+                  className="w-20 h-20 object-contain"
                   onError={(e) => {
-                    // 画像読み込みエラー時はSunアイコンにフォールバック
+                    // 画像読み込みエラー時はSunアイコンにフォールバック（背景付き）
                     e.currentTarget.style.display = 'none';
                     const parent = e.currentTarget.parentElement;
                     if (parent) {
-                      const sunIcon = document.createElement('div');
-                      sunIcon.innerHTML = '<svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>';
-                      parent.appendChild(sunIcon);
+                      const fallbackIcon = document.createElement('div');
+                      fallbackIcon.className = 'inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-lg';
+                      fallbackIcon.innerHTML = '<svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>';
+                      parent.appendChild(fallbackIcon);
                     }
                   }}
                 />
               ) : (
-                <Sun className="w-12 h-12 text-white" />
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-lg">
+                  <Sun className="w-12 h-12 text-white" />
+                </div>
               )}
             </div>
           )}
