@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Sun, Building2, Wrench, FileText, HelpCircle, LayoutDashboard, AlertCircle, Search, Layout } from 'lucide-react';
+import { LogOut, Building2, Wrench, FileText, HelpCircle, LayoutDashboard, AlertCircle, Search, Layout } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../lib/supabase';
+import type { Database } from '../lib/database.types';
+
+type CompanyInfo = Database['public']['Tables']['company_info']['Row'];
 import { DashboardTab } from '../components/admin/DashboardTab';
 import { CompanyTab } from '../components/admin/CompanyTab';
 import { ServicesTab } from '../components/admin/ServicesTab';
@@ -19,6 +23,23 @@ export const Admin: React.FC = () => {
   const { user, signOut, loading } = useAuth();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [companyInfo, setCompanyInfo] = useState<Partial<CompanyInfo>>({});
+
+  // 会社情報を取得
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const { data } = await supabase
+          .from('company_info')
+          .select('browser_favicon_url')
+          .single();
+        if (data) setCompanyInfo(data);
+      } catch (err) {
+        console.error('Failed to fetch company info:', err);
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
 
   // ページタイトルを変更
   useEffect(() => {
@@ -70,9 +91,20 @@ export const Admin: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
-                <Sun className="w-6 h-6 text-white" />
-              </div>
+              {companyInfo.browser_favicon_url ? (
+                <img
+                  src={companyInfo.browser_favicon_url}
+                  alt="Company Icon"
+                  className="w-10 h-10 rounded-lg object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-gray-500" />
+                </div>
+              )}
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
                   {t('東勝会社 管理画面', '东胜公司 管理系统')}
