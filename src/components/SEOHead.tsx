@@ -49,18 +49,35 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     seoData.robots_follow ? 'follow' : 'nofollow',
   ].join(', ');
 
-  // ブラウザタブ用ファビコンURLを取得（会社情報から、なければデフォルト）
-  const faviconUrl = companyInfo?.browser_favicon_url || '/sun-icon.svg';
+  // ブラウザタブ用ファビコンURLを取得（優先順位：browser_favicon_url > favicon_url > デフォルト）
+  const faviconUrl = companyInfo?.browser_favicon_url || companyInfo?.favicon_url || '/sun-icon.svg';
 
   // OG画像は会社ロゴを優先、なければSEO設定のOG画像を使用
   const ogImageUrl = companyInfo?.logo_url || seoData.og_image_url || '';
 
   // ファビコンの動的更新（React Helmetの制限を回避）
   useEffect(() => {
-    const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
-    if (link) {
-      link.href = faviconUrl;
+    // 既存のファビコンリンクをすべて削除
+    const existingLinks = document.querySelectorAll("link[rel*='icon']");
+    existingLinks.forEach(link => link.remove());
+    
+    // 新しいファビコンリンクを追加
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    
+    // ファイル拡張子によってタイプを設定
+    if (faviconUrl.endsWith('.svg')) {
+      link.type = 'image/svg+xml';
+    } else if (faviconUrl.endsWith('.png')) {
+      link.type = 'image/png';
+    } else if (faviconUrl.endsWith('.ico')) {
+      link.type = 'image/x-icon';
+    } else if (faviconUrl.endsWith('.jpg') || faviconUrl.endsWith('.jpeg')) {
+      link.type = 'image/jpeg';
     }
+    
+    link.href = faviconUrl;
+    document.head.appendChild(link);
   }, [faviconUrl]);
 
   return (
