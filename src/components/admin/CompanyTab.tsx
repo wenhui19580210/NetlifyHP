@@ -125,9 +125,20 @@ export const CompanyTab: React.FC = () => {
       return;
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon'];
-    if (!allowedTypes.includes(file.type)) {
-      showMessage('error', t('対応していない画像形式です', '不支持的图片格式'));
+    // ファビコンとヒーローアイコンの場合はより厳格にチェック、その他は緩やかに
+    const isFaviconOrHeroIcon = type === 'favicon' || type === 'browser_favicon' || type === 'hero_icon';
+    const allowedTypes = isFaviconOrHeroIcon
+      ? ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon']
+      : ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon'];
+    
+    // MIMEタイプがない場合は拡張子でチェック
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = isFaviconOrHeroIcon
+      ? ['jpg', 'jpeg', 'png', 'webp', 'svg', 'ico']
+      : ['jpg', 'jpeg', 'png', 'webp', 'svg', 'ico'];
+    
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExt || '')) {
+      showMessage('error', t('対応していない画像形式です（対応形式：JPEG, PNG, WebP, SVG, ICO）', '不支持的图片格式（支持格式：JPEG、PNG、WebP、SVG、ICO）'));
       return;
     }
 
@@ -393,7 +404,7 @@ export const CompanyTab: React.FC = () => {
                   </span>
                   <input
                     type="file"
-                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml"
+                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/svg+xml"
                     onChange={(e) => handleFileSelect(e, 'browser_favicon')}
                     disabled={uploadingBrowserFavicon}
                     className="hidden"
@@ -410,10 +421,13 @@ export const CompanyTab: React.FC = () => {
                 {t('最大ファイルサイズ: 2MB', '最大文件大小：2MB')}
               </p>
               <p className="text-xs text-gray-600">
-                {t('対応形式: ICO, PNG, SVG', '支持格式：ICO、PNG、SVG')}
+                {t('対応形式: JPEG, PNG, ICO, SVG', '支持格式：JPEG、PNG、ICO、SVG')}
               </p>
               <p className="text-xs text-gray-500 mt-2">
                 {t('※ブラウザのタブに表示されます', '※在浏览器标签中显示')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {t('※フッターアイコンとは別に管理されます', '※与页脚图标分开管理')}
               </p>
             </div>
           </div>
@@ -453,7 +467,7 @@ export const CompanyTab: React.FC = () => {
                   </span>
                   <input
                     type="file"
-                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml"
+                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/svg+xml"
                     onChange={(e) => handleFileSelect(e, 'favicon')}
                     disabled={uploadingFavicon}
                     className="hidden"
@@ -470,10 +484,13 @@ export const CompanyTab: React.FC = () => {
                 {t('最大ファイルサイズ: 2MB', '最大文件大小：2MB')}
               </p>
               <p className="text-xs text-gray-600">
-                {t('対応形式: ICO, PNG, SVG', '支持格式：ICO、PNG、SVG')}
+                {t('対応形式: JPEG, PNG, ICO, SVG', '支持格式：JPEG、PNG、ICO、SVG')}
               </p>
               <p className="text-xs text-gray-500 mt-2">
                 {t('※フッターに表示されます', '※在页脚中显示')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {t('※ブラウザタブ用ファビコンとは別に管理されます', '※与浏览器标签Favicon分开管理')}
               </p>
             </div>
           </div>
@@ -513,7 +530,7 @@ export const CompanyTab: React.FC = () => {
                   </span>
                   <input
                     type="file"
-                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml"
+                    accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/svg+xml"
                     onChange={(e) => handleFileSelect(e, 'hero_icon')}
                     disabled={uploadingHeroIcon}
                     className="hidden"
@@ -530,7 +547,7 @@ export const CompanyTab: React.FC = () => {
                 {t('最大ファイルサイズ: 2MB', '最大文件大小：2MB')}
               </p>
               <p className="text-xs text-gray-600">
-                {t('対応形式: ICO, PNG, SVG', '支持格式：ICO、PNG、SVG')}
+                {t('対応形式: JPEG, PNG, ICO, SVG', '支持格式：JPEG、PNG、ICO、SVG')}
               </p>
               <p className="text-xs text-gray-500 mt-2">
                 {t('※未設定時はブラウザタブ用ファビコンを使用', '※未设置时使用浏览器标签Favicon')}
@@ -538,18 +555,24 @@ export const CompanyTab: React.FC = () => {
             </div>
 
             {/* ヒーローアイコン表示ON/OFF */}
-            <div className="mt-4">
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={data.hero_icon_visible !== false}
+                  checked={data.hero_icon_visible === true}
                   onChange={(e) => handleChange('hero_icon_visible', e.target.checked)}
                   className="rounded border-gray-300 text-primary focus:ring-primary"
                 />
-                <span className="text-sm text-gray-700">
-                  {t('ヒーローセクションにアイコンを表示', '在首页英雄区域显示图标')}
+                <span className="text-sm font-semibold text-gray-700">
+                  {t('トップページにアイコンを表示する', '在首页显示图标')}
                 </span>
               </label>
+              <p className="text-xs text-gray-500 mt-2 ml-6">
+                {t(
+                  'チェックを外すとトップページのヒーローセクションでアイコンが非表示になります',
+                  '取消勾选后，首页英雄区域的图标将被隐藏'
+                )}
+              </p>
             </div>
           </div>
         </div>

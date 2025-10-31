@@ -15,8 +15,10 @@ export const Hero: React.FC = () => {
   };
 
   // ヒーローアイコンの表示制御とURL取得
-  const shouldShowIcon = company?.hero_icon_visible !== false; // デフォルトはtrue
-  const iconUrl = company?.hero_icon_url || company?.browser_favicon_url; // hero_icon_urlがなければbrowser_favicon_urlを使用
+  // hero_icon_visibleがtrueの場合のみ表示（明示的にtrueでなければ非表示）
+  const shouldShowIcon = company?.hero_icon_visible === true;
+  // hero_icon_urlがなければbrowser_favicon_urlを使用、それもなければデフォルトの/sun-icon.svgを使用
+  const iconUrl = company?.hero_icon_url || company?.browser_favicon_url || '/sun-icon.svg';
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 pt-16">
