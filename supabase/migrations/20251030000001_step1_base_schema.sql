@@ -67,6 +67,9 @@ CREATE TABLE IF NOT EXISTS company_info (
   -- ブランディング
   logo_url text,
   favicon_url text,
+  browser_favicon_url text,
+  hero_icon_url text,
+  hero_icon_visible boolean DEFAULT true,
   main_color text DEFAULT '#f59e0b',
   sub_color text DEFAULT '#0ea5e9',
 
@@ -79,6 +82,10 @@ CREATE TABLE IF NOT EXISTS company_info (
   updated_at timestamptz DEFAULT now()
 );
 COMMENT ON TABLE company_info IS '会社基本情報（1レコードのみ）';
+COMMENT ON COLUMN company_info.browser_favicon_url IS 'ブラウザタブに表示されるファビコンのURL';
+COMMENT ON COLUMN company_info.favicon_url IS 'フッターに表示されるアイコンのURL';
+COMMENT ON COLUMN company_info.hero_icon_url IS 'トップページのヒーローセクションに表示されるアイコンのURL';
+COMMENT ON COLUMN company_info.hero_icon_visible IS 'ヒーローセクションのアイコン表示ON/OFF';
 
 -- 3.2 会社情報表示制御テーブル (company_info_visibility)
 CREATE TABLE IF NOT EXISTS company_info_visibility (
